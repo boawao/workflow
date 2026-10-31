@@ -82,14 +82,18 @@ LIFF 不能掛在 Messaging API channel 上，要在**同一個 Provider** 底�
 
 **6-4 圖文選單**
 
-LINE Official Account Manager → 圖文選單 → 建立：
+已由 `supabase/functions/line-richmenu` 透過 LINE API 建立並設為所有人的預設選單（左：便當選項，右：下午茶選項，選單列文字「點餐」）。
+要換圖或改連結：改 `liff/richmenu.png` 或函式內容後 push、重新部署，再到 Supabase SQL Editor 執行：
 
-- 版型：大型、**左右兩格**
-- 圖片：上傳 `liff/richmenu.png`（2500×843，深藍青綠圓點）
-- 動作：都選「連結」
-  - 左（便當選項）：`https://liff.line.me/2012305512-yLtyBZVn?tab=lunch`
-  - 右（下午茶選項）：`https://liff.line.me/2012305512-yLtyBZVn?tab=tea`
-- 選單列顯示文字：「點餐」，預設顯示：開
+```sql
+select net.http_post(
+  url := 'https://onzqllxxfzwaghbewphi.supabase.co/functions/v1/line-richmenu',
+  headers := jsonb_build_object('Content-Type','application/json','x-cron-secret',
+    (select decrypted_secret from vault.decrypted_secrets where name='line_bot_cron_secret')),
+  body := '{}'::jsonb, timeout_milliseconds := 30000);
+```
+
+會自動刪掉舊的「點餐」選單再建新的。
 
 ## 費用與限制
 
