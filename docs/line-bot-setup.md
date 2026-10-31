@@ -87,8 +87,8 @@ LINE Official Account Manager → 圖文選單 → 建立：
 - 版型：大型、**左右兩格**
 - 圖片：上傳 `liff/richmenu.png`（2500×843，深藍青綠圓點）
 - 動作：都選「連結」
-  - 左（便當選項）：`https://liff.line.me/你的LIFF_ID?tab=lunch`
-  - 右（下午茶選項）：`https://liff.line.me/你的LIFF_ID?tab=tea`
+  - 左（便當選項）：`https://liff.line.me/2012305512-yLtyBZVn?tab=lunch`
+  - 右（下午茶選項）：`https://liff.line.me/2012305512-yLtyBZVn?tab=tea`
 - 選單列顯示文字：「點餐」，預設顯示：開
 
 ## 費用與限制
