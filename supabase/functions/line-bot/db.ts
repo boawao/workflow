@@ -26,6 +26,7 @@ export interface Todo {
   due: string | null;
   requester_id: string | null;
   requester_name: string;
+  awaiting_due: boolean;
   created_at: string;
 }
 
@@ -82,6 +83,7 @@ export async function createTodo(t: {
   due: string | null;
   requester: Member;
   source_text: string;
+  awaiting_due?: boolean;
 }): Promise<Todo> {
   return check(
     await db.from("todos").insert({
@@ -92,6 +94,7 @@ export async function createTodo(t: {
       requester_id: t.requester.user_id,
       requester_name: t.requester.name,
       source_text: t.source_text,
+      awaiting_due: t.awaiting_due ?? false,
     }).select().single(),
   ) as Todo;
 }
@@ -111,6 +114,26 @@ export async function completeTodo(id: number): Promise<Todo | null> {
     await db.from("todos").update({ status: "done", done_at: new Date().toISOString() })
       .eq("id", id).eq("status", "open").select().maybeSingle(),
   ) as Todo | null;
+}
+
+// 這位同事最近一筆還在等他回覆期限的待辦（24 小時內）
+export async function awaitingDueTodo(userId: string): Promise<Todo | null> {
+  return check(
+    await db.from("todos").select("*").eq("requester_id", userId).eq("awaiting_due", true).eq("status", "open")
+      .gte("created_at", new Date(Date.now() - 86400_000).toISOString())
+      .order("created_at", { ascending: false }).limit(1).maybeSingle(),
+  ) as Todo | null;
+}
+
+export async function setDue(id: number, due: string | null): Promise<Todo | null> {
+  const patch = due === null ? { awaiting_due: false } : { due, awaiting_due: false };
+  return check(await db.from("todos").update(patch).eq("id", id).select().maybeSingle()) as Todo | null;
+}
+
+// 現在起 3 小時後的台北時間，例如「14:30」
+export function threeHoursLater(): string {
+  return new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false })
+    .format(new Date(Date.now() + 3 * 3600_000));
 }
 
 export async function setPriority(id: number, priority: Priority): Promise<Todo | null> {

@@ -1,13 +1,13 @@
 // LINE 官方帳號 webhook + 待辦提醒排程
 //
 // POST /line-bot           LINE webhook（驗證 X-Line-Signature）
-// POST /line-bot/reminder  pg_cron 每 2 小時呼叫（驗證 x-cron-secret）
+// POST /line-bot/reminder  pg_cron 週一到週五 8、11、15 點呼叫（驗證 x-cron-secret）
 // /line-bot/api/*          LIFF 點餐頁面（驗證 LIFF ID token，見 api.ts）
 
 import { analyzeMessage } from "./ai.ts";
 import { handleApi } from "./api.ts";
 import * as db from "./db.ts";
-import { liffButton, orderCard, PRIORITY, summaryText, todoCard, todoList } from "./flex.ts";
+import { liffButton, orderCard, summaryText, todoCard, todoList } from "./flex.ts";
 import * as line from "./line.ts";
 import { submitOrder } from "./order.ts";
 
@@ -27,15 +27,15 @@ const OWNER_HELP = `【行政專用指令】
 截止下午茶：關閉本週下午茶並給彙總
 催下午茶：提醒還沒點的同事
 
-同事傳來的訊息若是要你處理的事，會自動整理成待辦並通知你。
-週一到週五 9、11、13、15、17 點會推播未完成待辦。`;
+同事傳來的訊息都會自動整理成待辦並通知你；沒寫期限的，系統會先問對方 3 小時內可不可以。
+週一到週五 8、11、15 點會推播未完成待辦。`;
 
 const MEMBER_HELP = `【可以這樣用】
 便當選項：選今天的便當，沒改就照上次
 下午茶選項：選本週下午茶
 有事要找行政：直接打字說明，例如
 「明天上午幫我叫快遞寄報告書到建築師事務所」
-系統會整理後轉給行政，處理完會通知你。`;
+訊息會轉給行政，處理完會通知你。`;
 
 // deno-lint-ignore no-explicit-any
 type LineEvent = Record<string, any>;
@@ -141,37 +141,71 @@ async function handleText(
     if (await handleOwnerCommand(replyToken, text, member)) return;
   }
 
-  // 其他文字：交給 AI 判斷是不是要行政處理的事
-  const forced = isOwner ? text.match(/^(?:新增|\+)\s*(緊急|重要|其他)?\s*(.+)$/s) : null;
+  if (!isOwner) return handleColleagueMessage(replyToken, text, member, owner);
+
+  // 行政自己：「新增 …」一定建立；其他文字由 AI 判斷是不是待辦
+  const forced = text.match(/^(?:新增|\+)\s*(緊急|重要|其他)?\s*(.+)$/s);
   const content = forced ? forced[2] : text;
   const analysis = await analyzeMessage(content, member.name, db.todayTaipei());
-
-  if (!analysis) {
-    await line.reply(replyToken, [line.text("系統暫時無法判讀這則訊息，請稍後再試，或直接聯絡行政。", menu)]);
+  if (!analysis && !forced) {
+    await line.reply(replyToken, [line.text("系統暫時無法判讀這則訊息，要建立待辦請用「新增 內容」。", menu)]);
     return;
   }
-  if (!analysis.is_task && !forced) {
-    await line.reply(replyToken, [line.text(isOwner ? "這則看起來不是待辦。要建立待辦請用「新增 內容」。" : MEMBER_HELP, menu)]);
+  if (analysis && !analysis.is_task && !forced) {
+    await line.reply(replyToken, [line.text("這則看起來不是待辦。要建立待辦請用「新增 內容」。", menu)]);
     return;
   }
-
   const priorityByWord = { 緊急: "urgent", 重要: "important", 其他: "other" } as const;
   const todo = await db.createTodo({
-    title: analysis.title || content.slice(0, 30),
-    detail: analysis.detail,
-    priority: forced?.[1] ? priorityByWord[forced[1] as keyof typeof priorityByWord] : analysis.priority,
-    due: analysis.due,
+    title: analysis?.title || content.slice(0, 30),
+    detail: analysis?.detail ?? "",
+    priority: forced?.[1] ? priorityByWord[forced[1] as keyof typeof priorityByWord] : analysis?.priority ?? "other",
+    due: analysis?.due ?? null,
     requester: member,
     source_text: text,
   });
+  await line.reply(replyToken, [todoCard(todo, "已建立待辦")]);
+}
 
-  if (isOwner) {
-    await line.reply(replyToken, [todoCard(todo, "已建立待辦")]);
+const DUE_QUESTION = "這項工作如果能在 3 小時之內替你完成，是否可以？如果不行，希望在多久時間之內完成？";
+const DUE_OK = "3小時內可以";
+
+// 同事傳來的訊息：全部變成行政的待辦
+async function handleColleagueMessage(replyToken: string, text: string, member: db.Member, owner: db.Member | null) {
+  // 正在等這位同事回覆期限：同意，或看起來像時間的短訊息，視為回答
+  const pending = await db.awaitingDueTodo(member.user_id);
+  const accepted = text === DUE_OK || /^(可以|好的?|ok|沒問題)[!！。.~～]*$/i.test(text);
+  const timeLike = text.length <= 30 && /\d|[一二三四五六七八九十兩半]|時|點|分|天|日|週|周|禮拜|月|前|內|早|午|晚|明|今|後/.test(text);
+  if (pending && (accepted || timeLike)) {
+    if (accepted) {
+      const due = (pending.due ?? "").replace("，待對方確認", "");
+      await db.setDue(pending.id, due);
+      await line.reply(replyToken, [line.text(`好的，「${pending.title}」會在 ${due} 處理完成。`, MEMBER_MENU)]);
+    } else {
+      const todo = await db.setDue(pending.id, text);
+      await line.reply(replyToken, [line.text(`好的，「${pending.title}」的期限改為：${text}`, MEMBER_MENU)]);
+      if (owner && todo) await line.push(owner.user_id, [line.text(`#${todo.id}「${todo.title}」\n${member.name} 回覆期限：${text}`)]);
+    }
     return;
   }
-  await line.reply(replyToken, [
-    line.text(`已整理並轉給行政：\n「${todo.title}」\n優先順序：${PRIORITY[todo.priority].label}\n處理完會通知你。`, menu),
-  ]);
+  if (pending) await db.setDue(pending.id, null);
+
+  const analysis = await analyzeMessage(text, member.name, db.todayTaipei());
+  const askDue = !analysis?.due;
+  const todo = await db.createTodo({
+    title: analysis?.title || text.slice(0, 30),
+    detail: analysis?.detail ?? text,
+    priority: analysis?.priority ?? "other",
+    due: analysis?.due ?? `3 小時內（${db.threeHoursLater()} 前，待對方確認）`,
+    requester: member,
+    source_text: text,
+    awaiting_due: askDue,
+  });
+
+  const received = `已收到並轉給行政：「${todo.title}」`;
+  await line.reply(replyToken, askDue
+    ? [line.text(`${received}\n\n${DUE_QUESTION}`, [DUE_OK])]
+    : [line.text(`${received}\n期限：${todo.due}\n處理完會通知你。`, MEMBER_MENU)]);
   if (owner) await line.push(owner.user_id, [todoCard(todo, `${member.name} 的新需求`)]);
 }
 
