@@ -67,6 +67,28 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
     });
   }
 
+  // 管理後台：只有行政主帳號能看
+  if (path === "admin" && req.method === "GET") {
+    if (!member.is_owner) return json({ error: "只有行政主帳號可以查看管理後台。" }, 403);
+    const date = db.todayTaipei();
+    const round = await db.latestTeaRound();
+    const [todos, lunch, tea, teaMissing] = await Promise.all([
+      db.openTodos(),
+      db.lunchSummary(date),
+      round ? db.teaSummary(round.id) : Promise.resolve([]),
+      round ? db.teaMissing(round.id) : Promise.resolve([]),
+    ]);
+    return json({
+      todos: todos.map(({ id, title, detail, priority, due, requester_name, awaiting_due, created_at }) => ({
+        id, title, detail, priority, due, requester_name, awaiting_due, created_at,
+      })),
+      lunch: { date, lines: lunch },
+      tea: round
+        ? { store: round.store, is_open: round.is_open, lines: tea, missing: teaMissing.map((m) => m.name) }
+        : null,
+    });
+  }
+
   if (path === "order" && req.method === "POST") {
     const body = await req.json().catch(() => null);
     const kind = body?.kind;

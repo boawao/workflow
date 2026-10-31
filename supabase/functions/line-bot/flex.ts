@@ -239,6 +239,40 @@ export function liffButton(liffId: string, tab: "lunch" | "tea", title: string, 
   };
 }
 
+// 管理後台連結（只給行政主帳號）
+export function adminButton(liffId: string): Message {
+  return {
+    type: "flex",
+    altText: "管理後台",
+    contents: {
+      type: "bubble",
+      size: "kilo",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "sm",
+        backgroundColor: "#0F2A44",
+        contents: [
+          { type: "text", text: "管理後台", weight: "bold", size: "lg", color: "#FFFFFF" },
+          { type: "text", text: "待辦事項、今日便當、本週下午茶", size: "xs", color: "#9FD8D1", wrap: true },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: "#0F2A44",
+        contents: [{
+          type: "button",
+          style: "primary",
+          color: "#1FA393",
+          height: "sm",
+          action: { type: "uri", label: "開啟管理後台", uri: `https://liff.line.me/${liffId}/admin.html` },
+        }],
+      },
+    },
+  };
+}
+
 // 訂餐統計文字
 export function summaryText(title: string, lines: SummaryLine[]): string {
   if (!lines.length) return `${title}\n目前沒有人點。`;

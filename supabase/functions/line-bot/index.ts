@@ -7,17 +7,18 @@
 import { analyzeMessage } from "./ai.ts";
 import { handleApi } from "./api.ts";
 import * as db from "./db.ts";
-import { liffButton, orderCard, summaryText, todoCard, todoList } from "./flex.ts";
+import { adminButton, liffButton, orderCard, summaryText, todoCard, todoList } from "./flex.ts";
 import * as line from "./line.ts";
 import { submitOrder } from "./order.ts";
 
 const LIFF_ID = Deno.env.get("LIFF_ID") ?? "2012305512-yLtyBZVn";
 
-const OWNER_MENU = ["待辦", "便當統計", "下午茶統計", "說明"];
+const OWNER_MENU = ["待辦", "管理後台", "便當統計", "下午茶統計", "說明"];
 const MEMBER_MENU = ["便當選項", "下午茶選項", "說明"];
 
 const OWNER_HELP = `【行政專用指令】
 待辦：看所有未完成待辦（依 緊急／重要／其他）
+管理後台：開啟後台，看待辦、便當、下午茶
 新增 內容：建立待辦，AI 自動判斷優先順序
 　例：新增 緊急 下午三點前寄掛號給國土署
 完成 12：把 #12 標成完成
@@ -210,6 +211,11 @@ async function handleColleagueMessage(replyToken: string, text: string, member: 
 }
 
 async function handleOwnerCommand(replyToken: string, text: string, member: db.Member): Promise<boolean> {
+  if (text === "管理後台") {
+    await line.reply(replyToken, [adminButton(LIFF_ID)]);
+    return true;
+  }
+
   if (text === "待辦") {
     const todos = await db.openTodos();
     await line.reply(replyToken, todos.length

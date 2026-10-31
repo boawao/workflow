@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f2a44">
+<title>管理後台</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* 與點餐頁同一套：深藍 + 青綠、細緻圓點底紋；上方三個總數，下方分頁 */
+:root {
+  --navy: #0f2a44;
+  --teal: #1fa393;
+  --teal-soft: #9fd8d1;
+  --mist: #eef5f6;
+  --ink: #12263a;
+  --muted: #5d7385;
+  --line: #d6e4e7;
+  --urgent: #d93025;
+  --important: #e8710a;
+  --other: #5f6b7a;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; }
+body {
+  font-family: var(--font); color: var(--ink); background: var(--mist);
+  background-image: radial-gradient(rgba(31, 163, 147, .16) 1px, transparent 1.3px);
+  background-size: 9px 9px; min-height: 100vh;
+}
+header {
+  background-color: var(--navy);
+  background-image:
+    radial-gradient(rgba(159, 216, 209, .22) 1px, transparent 1.3px),
+    radial-gradient(rgba(159, 216, 209, .10) 1px, transparent 1.3px);
+  background-size: 8px 8px, 8px 8px; background-position: 0 0, 4px 4px;
+  color: #fff;
+  padding: calc(env(safe-area-inset-top, 0px) + 16px) max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+.top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+h1 { margin: 0; font-size: 20px; letter-spacing: .02em; }
+.updated { font-size: 12px; color: var(--teal-soft); }
+.refresh {
+  appearance: none; border: 1px solid rgba(159, 216, 209, .5); background: transparent; color: #fff;
+  font: inherit; font-size: 12px; border-radius: 999px; padding: 4px 12px; cursor: pointer;
+}
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 14px; }
+.stat { background: rgba(255, 255, 255, .08); border-radius: 10px; padding: 10px 12px; }
+.stat b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stat span { font-size: 12px; color: var(--teal-soft); }
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 12px; }
+.tab {
+  appearance: none; border: 0; background: transparent; cursor: pointer; font: inherit;
+  font-size: 15px; font-weight: 700; color: rgba(255, 255, 255, .62);
+  padding: 10px 0 12px; border-bottom: 3px solid transparent;
+}
+.tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--teal); }
+.tab:focus-visible, .refresh:focus-visible { outline: 2px solid var(--teal-soft); outline-offset: -2px; }
+
+main {
+  padding: 16px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 24px) max(16px, env(safe-area-inset-left, 0px));
+  display: grid; gap: 16px; max-width: 720px; margin: 0 auto;
+}
+section { display: grid; gap: 8px; }
+h2 { margin: 4px 0 0; font-size: 14px; color: var(--navy); display: flex; align-items: center; gap: 8px; }
+h2 .count { color: var(--muted); font-weight: 400; font-size: 13px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; }
+.todo { border-left: 4px solid var(--other); display: grid; gap: 4px; }
+.todo.urgent { border-left-color: var(--urgent); }
+.todo.important { border-left-color: var(--important); }
+.todo .title { font-weight: 700; font-size: 15px; }
+.todo .detail { font-size: 13px; color: #3c4652; white-space: pre-wrap; overflow-wrap: anywhere; }
+.todo .meta { font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.badge { font-size: 11px; color: var(--important); border: 1px solid currentColor; border-radius: 4px; padding: 0 4px; }
+.rows { display: grid; }
+.row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+.row:first-child { border-top: 0; }
+.row .n { font-variant-numeric: tabular-nums; color: var(--muted); white-space: nowrap; }
+.row .carried { color: var(--muted); font-size: 12px; }
+.total { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; }
+.total span:last-child { font-variant-numeric: tabular-nums; color: var(--teal); }
+.empty { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 8px; }
+.tag { font-size: 12px; border-radius: 999px; padding: 1px 8px; background: var(--mist); color: var(--muted); font-weight: 400; }
+.tag.open { background: #dff3f0; color: #146e63; }
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <h1>管理後台</h1>
+    <div><span class="updated" id="updated"></span> <button class="refresh" id="refresh">重新整理</button></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><b id="s-todo">–</b><span>未完成待辦</span></div>
+    <div class="stat"><b id="s-lunch">–</b><span>今日便當份數</span></div>
+    <div class="stat"><b id="s-tea">–</b><span>下午茶杯數</span></div>
+  </div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="todo" aria-selected="true">待辦</button>
+    <button class="tab" role="tab" data-tab="lunch" aria-selected="false">便當</button>
+    <button class="tab" role="tab" data-tab="tea" aria-selected="false">下午茶</button>
+  </div>
+</header>
+<main id="main"><div class="empty">載入中…</div></main>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+const LIFF_ID = "2012305512-yLtyBZVn";
+const API = "https://onzqllxxfzwaghbewphi.supabase.co/functions/v1/line-bot/api";
+const PRIORITY = [
+  ["urgent", "緊急", "var(--urgent)"],
+  ["important", "重要", "var(--important)"],
+  ["other", "其他", "var(--other)"],
+];
+
+let data = null;
+let tab = "todo";
+let idToken = "";
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+const time = (iso) => new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date(iso));
+
+function sum(lines) { return lines.reduce((t, l) => t + (l.price || 0), 0); }
+
+function orderBlock(lines, emptyText) {
+  if (!lines.length) return `<div class="card empty">${emptyText}</div>`;
+  const counts = new Map();
+  for (const l of lines) counts.set(l.item, (counts.get(l.item) || 0) + 1);
+  const byItem = [...counts].sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `<div class="row"><span>${esc(k)}</span><span class="n">× ${v}</span></div>`).join("");
+  const byPerson = lines.map((l) => `<div class="row"><span>${esc(l.name || "（未命名）")}</span><span class="n">${esc(l.item)}${l.carried ? ' <span class="carried">照舊</span>' : ""}</span></div>`).join("");
+  return `<div class="card total"><span>共 ${lines.length} 份</span><span>$${sum(lines)}</span></div>
+    <section><h2>依品項</h2><div class="card rows">${byItem}</div></section>
+    <section><h2>依人</h2><div class="card rows">${byPerson}</div></section>`;
+}
+
+function render() {
+  for (const b of document.querySelectorAll(".tab")) b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+  if (!data) return;
+  $("s-todo").textContent = data.todos.length;
+  $("s-lunch").textContent = data.lunch.lines.length;
+  $("s-tea").textContent = data.tea ? data.tea.lines.length : 0;
+  const main = $("main");
+
+  if (tab === "todo") {
+    if (!data.todos.length) { main.innerHTML = `<div class="card empty">目前沒有未完成的待辦</div>`; return; }
+    main.innerHTML = PRIORITY.map(([key, label, color]) => {
+      const items = data.todos.filter((t) => t.priority === key);
+      if (!items.length) return "";
+      return `<section><h2><span class="dot" style="background:${color}"></span>${label}<span class="count">${items.length} 件</span></h2>
+        ${items.map((t) => `<div class="card todo ${key}">
+          <div class="title">${esc(t.title)}</div>
+          ${t.detail && t.detail !== t.title ? `<div class="detail">${esc(t.detail)}</div>` : ""}
+          <div class="meta"><span>#${t.id}</span>${t.requester_name ? `<span>${esc(t.requester_name)}</span>` : ""}
+            ${t.due ? `<span>期限 ${esc(t.due)}</span>` : ""}${t.awaiting_due ? '<span class="badge">等對方回覆期限</span>' : ""}
+            <span>${time(t.created_at)}</span></div>
+        </div>`).join("")}</section>`;
+    }).join("");
+  } else if (tab === "lunch") {
+    main.innerHTML = `<section><h2>${esc(data.lunch.date)} 便當<span class="count">沒選的人照上次訂</span></h2></section>`
+      + orderBlock(data.lunch.lines, "今天還沒有人點");
+  } else {
+    const t = data.tea;
+    main.innerHTML = !t ? `<div class="card empty">還沒有設定下午茶</div>`
+      : `<section><h2>${esc(t.store)} <span class="tag ${t.is_open ? "open" : ""}">${t.is_open ? "開放中" : "已截止"}</span></h2></section>`
+        + orderBlock(t.lines, "還沒有人點")
+        + (t.missing.length ? `<section><h2>還沒點<span class="count">${t.missing.length} 位</span></h2><div class="card">${t.missing.map(esc).join("、")}</div></section>` : "");
+  }
+}
+
+async function load() {
+  $("refresh").disabled = true;
+  try {
+    const res = await fetch(`${API}/admin`, { headers: { Authorization: `Bearer ${idToken}` } });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || "載入失敗，請稍後再試。");
+    data = body;
+    $("updated").textContent = new Intl.DateTimeFormat("zh-TW", { timeZone: "Asia/Taipei", hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()) + " 更新";
+    render();
+  } catch (err) {
+    $("main").innerHTML = `<div class="card empty">${esc(err.message)}</div>`;
+  }
+  $("refresh").disabled = false;
+}
+
+document.querySelector(".tabs").addEventListener("click", (e) => {
+  const b = e.target.closest(".tab");
+  if (b) { tab = b.dataset.tab; render(); }
+});
+$("refresh").addEventListener("click", load);
+
+(async () => {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href });
+    idToken = liff.getIDToken();
+  } catch (err) {
+    $("main").innerHTML = `<div class="card empty">請從 LINE 開啟這個頁面。</div>`;
+    return;
+  }
+  load();
+})();
+</script>
+</body>
+</html>
