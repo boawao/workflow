@@ -2,14 +2,17 @@
 //
 // POST /line-bot           LINE webhook（驗證 X-Line-Signature）
 // POST /line-bot/reminder  pg_cron 每 2 小時呼叫（驗證 x-cron-secret）
+// /line-bot/api/*          LIFF 點餐頁面（驗證 LIFF ID token，見 api.ts）
 
 import { analyzeMessage } from "./ai.ts";
+import { handleApi } from "./api.ts";
 import * as db from "./db.ts";
-import { orderCard, PRIORITY, summaryText, todoCard, todoList } from "./flex.ts";
+import { liffButton, orderCard, PRIORITY, summaryText, todoCard, todoList } from "./flex.ts";
 import * as line from "./line.ts";
+import { submitOrder } from "./order.ts";
 
 const OWNER_MENU = ["待辦", "便當統計", "下午茶統計", "說明"];
-const MEMBER_MENU = ["訂便當", "點下午茶", "說明"];
+const MEMBER_MENU = ["便當選項", "下午茶選項", "說明"];
 
 const OWNER_HELP = `【行政專用指令】
 待辦：看所有未完成待辦（依 緊急／重要／其他）
@@ -26,8 +29,8 @@ const OWNER_HELP = `【行政專用指令】
 週一到週五 9、11、13、15、17 點會推播未完成待辦。`;
 
 const MEMBER_HELP = `【可以這樣用】
-訂便當：選今天的便當，沒改就照上次
-點下午茶：選本週下午茶
+便當選項：選今天的便當，沒改就照上次
+下午茶選項：選本週下午茶
 有事要找行政：直接打字說明，例如
 「明天上午幫我叫快遞寄報告書到建築師事務所」
 系統會整理後轉給行政，處理完會通知你。`;
@@ -37,6 +40,8 @@ type LineEvent = Record<string, any>;
 
 Deno.serve(async (req) => {
   const url = new URL(req.url);
+  const api = url.pathname.match(/\/api\/(\w+)$/);
+  if (api) return handleApi(req, api[1]);
   if (req.method !== "POST") return new Response("ok");
 
   if (url.pathname.endsWith("/reminder")) {
@@ -127,8 +132,8 @@ async function handleText(
     await line.reply(replyToken, [line.text(isOwner ? OWNER_HELP : MEMBER_HELP, menu)]);
     return;
   }
-  if (text === "訂便當") return replyLunchCard(replyToken, member);
-  if (text === "點下午茶") return replyTeaCard(replyToken, member);
+  if (text === "便當選項" || text === "訂便當") return replyLunchCard(replyToken, member);
+  if (text === "下午茶選項" || text === "點下午茶") return replyTeaCard(replyToken, member);
 
   if (isOwner) {
     if (await handleOwnerCommand(replyToken, text, member)) return;
@@ -211,7 +216,7 @@ async function handleOwnerCommand(replyToken: string, text: string, member: db.M
     }
     const missing = await db.teaMissing(round.id);
     for (const m of missing) {
-      await line.push(m.user_id, [line.text(`提醒：本週下午茶（${round.store}）你還沒點喔！`, ["點下午茶"])]);
+      await line.push(m.user_id, [line.text(`提醒：本週下午茶（${round.store}）你還沒點喔！`, ["下午茶選項"])]);
     }
     await line.reply(replyToken, [line.text(missing.length ? `已提醒 ${missing.length} 位：${missing.map((m) => m.name).join("、")}` : "大家都點了！")]);
     return true;
@@ -230,7 +235,7 @@ async function handleOwnerCommand(replyToken: string, text: string, member: db.M
     const items = parseItems(setTea[2]);
     const round = await db.startTeaRound(setTea[1], items);
     await line.reply(replyToken, [
-      line.text(`下午茶已開放：${round.store}\n${items.map((i) => `・${i.name}${i.price != null ? ` $${i.price}` : ""}`).join("\n")}\n\n同事按「點下午茶」就能選。可用「催下午茶」提醒還沒點的人。`, OWNER_MENU),
+      line.text(`下午茶已開放：${round.store}\n${items.map((i) => `・${i.name}${i.price != null ? ` $${i.price}` : ""}`).join("\n")}\n\n同事按「下午茶選項」就能選。可用「催下午茶」提醒還沒點的人。`, OWNER_MENU),
     ]);
     return true;
   }
@@ -262,6 +267,11 @@ async function finishTodo(replyToken: string, id: number, member: db.Member) {
 // ---------- 訂餐卡片 ----------
 
 async function replyLunchCard(replyToken: string, member: db.Member) {
+  const liffId = Deno.env.get("LIFF_ID");
+  if (liffId) {
+    await line.reply(replyToken, [liffButton(liffId, "lunch", "便當選項", "選今天的便當，沒改就照上次。")]);
+    return;
+  }
   const items = await db.lunchItems();
   if (!items.length) {
     await line.reply(replyToken, [line.text("行政還沒設定便當選項。")]);
@@ -281,6 +291,11 @@ async function replyLunchCard(replyToken: string, member: db.Member) {
 }
 
 async function replyTeaCard(replyToken: string, member: db.Member) {
+  const liffId = Deno.env.get("LIFF_ID");
+  if (liffId) {
+    await line.reply(replyToken, [liffButton(liffId, "tea", "下午茶選項", "選本週的下午茶。")]);
+    return;
+  }
   const round = await db.openTeaRound();
   if (!round) {
     await line.reply(replyToken, [line.text("本週下午茶還沒開放，或已經截止了。")]);
@@ -315,36 +330,8 @@ async function handlePostback(e: LineEvent, member: db.Member, isOwner: boolean)
 
   if (a === "order" || a === "same" || a === "skip") {
     const kind = (a === "same" ? "lunch" : p.get("k")) as "lunch" | "tea";
-    const key = p.get("key")!;
-    if (kind === "lunch" && key !== db.todayTaipei()) {
-      return line.reply(e.replyToken, [line.text("這張是之前的便當卡，請按「訂便當」重新選。", menu)]);
-    }
-    if (kind === "tea") {
-      const round = await db.openTeaRound();
-      if (!round || String(round.id) !== key) {
-        return line.reply(e.replyToken, [line.text("這次下午茶已經截止了。", menu)]);
-      }
-    }
-
-    let itemName: string;
-    let price: number | null = null;
-    if (a === "skip") {
-      itemName = "不訂";
-    } else if (a === "same") {
-      if (!member.lunch_default) return line.reply(e.replyToken, [line.text("沒有上次的紀錄，請直接選品項。")]);
-      itemName = member.lunch_default;
-      price = (await db.lunchItems()).find((i) => i.name === itemName)?.price ?? null;
-    } else {
-      const item = await db.getMenuItem(Number(p.get("item")));
-      if (!item || item.kind !== kind) return line.reply(e.replyToken, [line.text("找不到這個品項，請重新開啟選單。")]);
-      itemName = item.name;
-      price = item.price;
-    }
-    await db.placeOrder({ kind, order_key: key, user_id: member.user_id, item_name: itemName, price });
-    const label = kind === "lunch" ? "便當" : "下午茶";
-    return line.reply(e.replyToken, [line.text(
-      itemName === "不訂" ? `好的，這次${label}不幫你訂。` : `已登記${label}：${itemName}${price != null ? ` $${price}` : ""}`,
-      menu,
-    )]);
+    const choice = a === "order" ? { item: Number(p.get("item")) } : a;
+    const result = await submitOrder(member, kind, p.get("key")!, choice);
+    return line.reply(e.replyToken, [line.text(result.message, menu)]);
   }
 }

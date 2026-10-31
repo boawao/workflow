@@ -205,6 +205,40 @@ export function orderCard(opts: {
   };
 }
 
+// 開啟 LIFF 點餐頁的卡片
+export function liffButton(liffId: string, tab: "lunch" | "tea", title: string, subtitle: string): Message {
+  return {
+    type: "flex",
+    altText: title,
+    contents: {
+      type: "bubble",
+      size: "kilo",
+      body: {
+        type: "box",
+        layout: "vertical",
+        spacing: "sm",
+        backgroundColor: "#0F2A44",
+        contents: [
+          { type: "text", text: title, weight: "bold", size: "lg", color: "#FFFFFF" },
+          { type: "text", text: subtitle, size: "xs", color: "#9FD8D1", wrap: true },
+        ],
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        backgroundColor: "#0F2A44",
+        contents: [{
+          type: "button",
+          style: "primary",
+          color: "#1FA393",
+          height: "sm",
+          action: { type: "uri", label: "開啟選單", uri: `https://liff.line.me/${liffId}?tab=${tab}` },
+        }],
+      },
+    },
+  };
+}
+
 // 訂餐統計文字
 export function summaryText(title: string, lines: SummaryLine[]): string {
   if (!lines.length) return `${title}\n目前沒有人點。`;

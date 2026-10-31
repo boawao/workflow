@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>訂餐</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap">
+<style>
+/* 深藍 + 青綠，底紋用細緻圓點；給 LINE 半頁（Compact）尺寸 */
+:root {
+  --navy: #0f2a44;
+  --navy-deep: #0a1f33;
+  --teal: #1fa393;
+  --teal-soft: #9fd8d1;
+  --mist: #eef5f6;
+  --ink: #12263a;
+  --muted: #5d7385;
+  --line: #d6e4e7;
+  --danger: #c2433b;
+  --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; margin: 0; }
+body {
+  font-family: var(--font); color: var(--ink); background: var(--mist);
+  background-image: radial-gradient(rgba(31, 163, 147, .16) 1px, transparent 1.3px);
+  background-size: 9px 9px;
+  display: flex; flex-direction: column;
+}
+header {
+  background-color: var(--navy);
+  background-image:
+    radial-gradient(rgba(159, 216, 209, .22) 1px, transparent 1.3px),
+    radial-gradient(rgba(159, 216, 209, .10) 1px, transparent 1.3px);
+  background-size: 8px 8px, 8px 8px;
+  background-position: 0 0, 4px 4px;
+  color: #fff;
+  padding: calc(env(safe-area-inset-top, 0px) + 14px) max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px));
+}
+.hello { font-size: 12px; color: var(--teal-soft); letter-spacing: .04em; }
+.tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 10px; }
+.tab {
+  appearance: none; border: 0; cursor: pointer; font: inherit;
+  padding: 10px 0 12px; font-size: 16px; font-weight: 700;
+  color: rgba(255, 255, 255, .62); background: transparent;
+  border-bottom: 3px solid transparent;
+}
+.tab[aria-selected="true"] { color: #fff; border-bottom-color: var(--teal); }
+.tab:focus-visible { outline: 2px solid var(--teal-soft); outline-offset: -2px; }
+
+main {
+  flex: 1; overflow-y: auto;
+  padding: 14px max(16px, env(safe-area-inset-right, 0px)) 16px max(16px, env(safe-area-inset-left, 0px));
+}
+.meta { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 10px; }
+.meta h2 { margin: 0; font-size: 15px; color: var(--navy); }
+.meta span { font-size: 12px; color: var(--muted); }
+.list { display: grid; gap: 8px; }
+.opt {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  appearance: none; font: inherit; text-align: left; cursor: pointer;
+  background: #fff; border: 1.5px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; color: var(--ink);
+}
+.opt .dot {
+  flex: none; width: 18px; height: 18px; border-radius: 50%;
+  border: 2px solid var(--line); background: #fff;
+}
+.opt .name { flex: 1; min-width: 0; font-size: 15px; font-weight: 500; }
+.opt .price { font-size: 14px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.opt[aria-checked="true"] { border-color: var(--teal); background: #f2fbfa; }
+.opt[aria-checked="true"] .dot { border-color: var(--teal); background: radial-gradient(var(--teal) 45%, #fff 50%); }
+.opt.same { background: var(--navy); border-color: var(--navy); color: #fff; }
+.opt.same .price { color: var(--teal-soft); }
+.opt.same .dot { border-color: var(--teal-soft); background: transparent; }
+.opt.same[aria-checked="true"] .dot { background: radial-gradient(var(--teal-soft) 45%, var(--navy) 50%); }
+.opt.skip { background: transparent; border-style: dashed; color: var(--muted); }
+.opt:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.empty { padding: 28px 8px; text-align: center; color: var(--muted); font-size: 14px; }
+
+footer {
+  background: #fff; border-top: 1px solid var(--line);
+  padding: 10px max(16px, env(safe-area-inset-right, 0px)) calc(env(safe-area-inset-bottom, 0px) + 10px) max(16px, env(safe-area-inset-left, 0px));
+  display: flex; align-items: center; gap: 12px;
+}
+.status { flex: 1; min-width: 0; font-size: 13px; color: var(--muted); }
+.status b { color: var(--navy); }
+.submit {
+  appearance: none; border: 0; cursor: pointer; font: inherit; font-weight: 700; font-size: 15px;
+  background: var(--teal); color: #fff; border-radius: 10px; padding: 11px 22px;
+}
+.submit:disabled { background: #b9cdd1; cursor: default; }
+.submit:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
+.toast {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); transform: translateX(-50%);
+  background: var(--navy-deep); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 999px;
+  max-width: calc(100% - 32px); text-align: center; box-shadow: 0 6px 18px rgba(10, 31, 51, .25);
+}
+.toast.err { background: var(--danger); }
+@media (prefers-reduced-motion: no-preference) {
+  .opt { transition: border-color .15s, background-color .15s; }
+}
+</style>
+</head>
+<body>
+<header>
+  <div class="hello" id="hello">載入中…</div>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-lunch" aria-selected="true" data-tab="lunch">便當選項</button>
+    <button class="tab" role="tab" id="tab-tea" aria-selected="false" data-tab="tea">下午茶選項</button>
+  </div>
+</header>
+<main id="main" role="tabpanel"><div class="empty">載入中…</div></main>
+<footer>
+  <div class="status" id="status"></div>
+  <button class="submit" id="submit" disabled>確認</button>
+</footer>
+<div class="toast" id="toast" hidden></div>
+
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+// ====== 設定：建立 LIFF App 後填入 ======
+const LIFF_ID = "YOUR_LIFF_ID";
+const API = "https://onzqllxxfzwaghbewphi.supabase.co/functions/v1/line-bot/api";
+// =======================================
+
+let data = null;
+let tab = new URLSearchParams(location.search).get("tab") === "tea" ? "tea" : "lunch";
+let picked = null; // { item: id } | "same" | "skip"
+let idToken = "";
+
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+function toast(msg, isErr) {
+  const t = $("toast");
+  t.textContent = msg;
+  t.className = "toast" + (isErr ? " err" : "");
+  t.hidden = false;
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => (t.hidden = true), 2600);
+}
+
+async function api(path, init = {}) {
+  const res = await fetch(`${API}/${path}`, {
+    ...init,
+    headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}`, ...(init.headers || {}) },
+  });
+  const body = await res.json().catch(() => ({}));
+  if (!res.ok && !body.message) throw new Error(body.error || "連線失敗，請稍後再試。");
+  return body;
+}
+
+function option({ cls = "", name, price, checked, choice }) {
+  return `<button class="opt ${cls}" role="radio" aria-checked="${checked}" data-choice='${JSON.stringify(choice)}'>
+    <span class="dot"></span><span class="name">${esc(name)}</span>${price != null ? `<span class="price">$${price}</span>` : ""}
+  </button>`;
+}
+
+function render() {
+  for (const b of document.querySelectorAll(".tab")) b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+  const main = $("main");
+  const sec = data && data[tab];
+  let current = null;
+
+  if (!sec || (tab === "lunch" && !sec.items.length)) {
+    main.innerHTML = `<div class="empty">${tab === "lunch" ? "行政還沒設定今天的便當選項。" : "本週下午茶還沒開放，或已經截止。"}</div>`;
+  } else {
+    current = sec.current;
+    const isPicked = (c) => JSON.stringify(c) === JSON.stringify(picked);
+    const rows = [];
+    if (tab === "lunch" && sec.last && !sec.current) {
+      rows.push(option({ cls: "same", name: `照舊：${sec.last}`, price: null, checked: isPicked("same"), choice: "same" }));
+    }
+    for (const it of sec.items) {
+      const choice = { item: it.id };
+      const checked = picked ? isPicked(choice) : sec.current === it.name;
+      rows.push(option({ name: it.name, price: it.price, checked, choice }));
+    }
+    rows.push(option({ cls: "skip", name: tab === "lunch" ? "今天不訂" : "這次不點", price: null, checked: picked ? isPicked("skip") : sec.current === "不訂", choice: "skip" }));
+    main.innerHTML = `<div class="meta"><h2>${tab === "lunch" ? `${esc(sec.key)} 便當` : esc(sec.store)}</h2>
+      <span>${tab === "lunch" ? "10:15 前選好，沒選照上次" : "可以再改選"}</span></div>
+      <div class="list" role="radiogroup">${rows.join("")}</div>`;
+  }
+  $("status").innerHTML = current ? `目前：<b>${esc(current)}</b>` : (sec ? "尚未選擇" : "");
+  $("submit").disabled = !picked;
+}
+
+document.querySelector(".tabs").addEventListener("click", (e) => {
+  const b = e.target.closest(".tab");
+  if (!b || b.dataset.tab === tab) return;
+  tab = b.dataset.tab;
+  picked = null;
+  render();
+});
+
+$("main").addEventListener("click", (e) => {
+  const b = e.target.closest(".opt");
+  if (!b) return;
+  picked = JSON.parse(b.dataset.choice);
+  render();
+});
+
+$("submit").addEventListener("click", async () => {
+  if (!picked) return;
+  $("submit").disabled = true;
+  try {
+    const r = await api("order", { method: "POST", body: JSON.stringify({ kind: tab, choice: picked }) });
+    toast(r.message, !r.ok);
+    if (r.ok) {
+      data[tab].current = r.item;
+      picked = null;
+    }
+  } catch (err) {
+    toast(err.message, true);
+  }
+  render();
+});
+
+async function start() {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href });
+    idToken = liff.getIDToken();
+    data = await api("menu");
+    $("hello").textContent = `${data.name || ""} 你好`;
+  } catch (err) {
+    $("hello").textContent = "";
+    $("main").innerHTML = `<div class="empty">${esc(err.message || "請從 LINE 開啟這個頁面。")}</div>`;
+    return;
+  }
+  render();
+}
+start();
+</script>
+</body>
+</html>
