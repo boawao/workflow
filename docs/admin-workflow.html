@@ -1,0 +1,1352 @@
+
+<title>行政秘書工作流程圖</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;900&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: sticky table of contents on the left, one readable column of
+   prose with full-width diagram and table panels; stacks on phones. */
+:root {
+  --bg: #f5f6f8;
+  --panel: #ffffff;
+  --fg: #18212c;
+  --muted: #5b6676;
+  --line: #d9dee5;
+  --accent: #b9380f;      /* fire-safety signal red-orange */
+  --ai: #0b6e66;          /* marks AI / automated steps */
+  --ai-bg: #e3f2ef;
+  --font-display: "Noto Serif TC", "Songti TC", serif;
+  --font-body: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #12171d; --panel: #1a2129; --fg: #e5e9ee; --muted: #9aa6b4;
+    --line: #2d3742; --accent: #f08a5d; --ai: #5fd0c3; --ai-bg: #163330;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #12171d; --panel: #1a2129; --fg: #e5e9ee; --muted: #9aa6b4;
+  --line: #2d3742; --accent: #f08a5d; --ai: #5fd0c3; --ai-bg: #163330;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.75;
+}
+.wrap {
+  display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px;
+  max-width: 1240px; margin: 0 auto;
+  padding-block: 40px 80px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+nav.toc {
+  position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px);
+  align-self: start; max-height: calc(100vh - 48px); overflow-y: auto;
+  font-size: 13px; line-height: 1.5;
+}
+nav.toc .label {
+  font-size: 11px; letter-spacing: .12em; color: var(--muted);
+  text-transform: uppercase; margin-bottom: 10px;
+}
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+nav.toc a {
+  color: var(--muted); text-decoration: none; display: block;
+  padding: 4px 10px; border-left: 2px solid var(--line);
+}
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--fg); border-left-color: var(--accent); outline: none; }
+nav.toc li.sub a { padding-left: 22px; font-size: 12px; }
+main { min-width: 0; }
+main > * { max-width: 760px; }
+main > .diagram, main > .table { max-width: none; }
+h1 {
+  font-family: var(--font-display); font-weight: 900; font-size: 34px;
+  line-height: 1.3; margin: 0 0 12px; text-wrap: balance;
+}
+h2 {
+  font-family: var(--font-display); font-weight: 600; font-size: 24px;
+  margin: 64px 0 16px; padding-top: 18px; border-top: 1px solid var(--line);
+  text-wrap: balance; scroll-margin-top: 24px;
+}
+h2 .num { color: var(--accent); margin-right: 10px; font-variant-numeric: tabular-nums; }
+h3 { font-size: 17px; font-weight: 700; margin: 40px 0 12px; scroll-margin-top: 24px; }
+p, li { margin: 0 0 10px; }
+a { color: var(--accent); }
+blockquote {
+  margin: 16px 0; padding: 10px 16px; border-left: 3px solid var(--line);
+  color: var(--muted); font-size: 14px;
+}
+blockquote p { margin: 0 0 4px; }
+code { font-family: var(--font-mono); font-size: .9em; }
+hr { display: none; }
+.diagram {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 6px;
+  padding: 20px; margin: 16px 0 24px; overflow-x: auto;
+}
+.diagram pre.mermaid { margin: 0; text-align: center; background: transparent; }
+.table { overflow-x: auto; margin: 16px 0 24px; }
+table {
+  border-collapse: collapse; width: 100%; font-size: 14px; line-height: 1.55;
+  background: var(--panel);
+}
+th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+th { font-weight: 700; background: var(--bg); white-space: nowrap; }
+td { font-variant-numeric: tabular-nums; }
+.ai { color: var(--ai); background: var(--ai-bg); padding: 0 4px; border-radius: 3px; font-weight: 500; }
+.lede { color: var(--muted); font-size: 14px; }
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 24px; padding-block: 24px 60px; }
+  nav.toc { position: static; max-height: none; }
+  nav.toc li.sub { display: none; }
+  h1 { font-size: 27px; }
+}
+</style>
+<div class="wrap"><nav class="toc" aria-label="目錄"><div class="label">目錄</div><ol><li class=""><a href="#h2-1">0. 怎麼看這份文件</a></li><li class=""><a href="#h2-2">1. 工作全景圖</a></li><li class="sub"><a href="#h3-1">1.1 依「觸發來源」分類（這是之後導入 AI 的關鍵）</a></li><li class=""><a href="#h2-3">2. 時間節奏</a></li><li class="sub"><a href="#h3-2">2.1 一天的流程（以週一為例）</a></li><li class="sub"><a href="#h3-3">2.2 一週的節奏</a></li><li class="sub"><a href="#h3-4">2.3 一個月的節奏</a></li><li class=""><a href="#h2-4">3. 各項工作詳細流程（現況）</a></li><li class="sub"><a href="#h3-5">3.1 週會（每週一 09:30）</a></li><li class="sub"><a href="#h3-6">3.2 每日便當訂購</a></li><li class="sub"><a href="#h3-7">3.3 每週下午茶</a></li><li class="sub"><a href="#h3-8">3.4 收信、掛號、包裹分發</a></li><li class="sub"><a href="#h3-9">3.5 快遞叫件（全球快遞）</a></li><li class="sub"><a href="#h3-10">3.6 公文收文</a></li><li class="sub"><a href="#h3-11">3.7 公文發文</a></li><li class="sub"><a href="#h3-12">3.8 公文簽核後歸檔</a></li><li class="sub"><a href="#h3-13">3.9 電子公文收件</a></li><li class="sub"><a href="#h3-14">3.10 會議記錄（同仁外出開會）</a></li><li class="sub"><a href="#h3-15">3.11 未繳追蹤與催繳</a></li><li class="sub"><a href="#h3-16">3.12 崔sir辦公室例行（2026.10.30 版）</a></li><li class="sub"><a href="#h3-17">3.13 辦公環境開關與下班檢查</a></li><li class="sub"><a href="#h3-18">3.14 採購、零用金、郵寄</a></li><li class="sub"><a href="#h3-19">3.15 借用與登記</a></li><li class="sub"><a href="#h3-20">3.16 名片王與書籍登載</a></li><li class=""><a href="#h2-5">4. 案件行政程序（協助工程師）</a></li><li class="sub"><a href="#h3-21">4.1 防火避難綜合檢討（防綜案）</a></li><li class="sub"><a href="#h3-22">4.2 紅皮書 / 白皮書（使用執照前 = 紅，使用執照後 = 白）</a></li><li class="sub"><a href="#h3-23">4.3 紅白皮書製作細節（行政負責段）</a></li><li class=""><a href="#h2-6">5. 痛點整理</a></li><li class=""><a href="#h2-7">6. 改善與 AI 導入建議</a></li><li class="sub"><a href="#h3-24">6.1 核心：統一任務入口（LINE 官方帳號 → 待辦清單）</a></li><li class="sub"><a href="#h3-25">6.2 便當訂購（改善後）</a></li><li class="sub"><a href="#h3-26">6.3 下午茶（改善後）</a></li><li class="sub"><a href="#h3-27">6.4 公文電子化與追蹤（新系統）</a></li><li class="sub"><a href="#h3-28">6.5 會議記錄（週會與外出會議）</a></li><li class="sub"><a href="#h3-29">6.6 定時瑣事：交給設備排程與提醒</a></li><li class="sub"><a href="#h3-30">6.7 月會報表自動化</a></li><li class="sub"><a href="#h3-31">6.8 知識傳承：把一人知識變成 AI 可問的手冊</a></li><li class="sub"><a href="#h3-32">6.9 資安</a></li><li class=""><a href="#h2-8">7. 導入路線圖</a></li><li class=""><a href="#h2-9">8. AI 跟進任務總表</a></li><li class=""><a href="#h2-10">9. 待確認事項</a></li></ol></nav><main><h1>行政秘書工作流程圖與 AI 跟進規劃</h1>
+<blockquote class="lede">
+<p>資料來源：訪談逐字稿（2026-10-30）、《崔sir辦公室內部例行事情 2026.10.30 版》、《管理事項統整 2026.08.19》、《行政工作 SOP 2026.10.30》。
+文件中所有帳號、密碼、PIN 碼一律<strong>未</strong>收錄於本文件，請改放密碼管理工具（見 6.9）。</p>
+</blockquote>
+<h2 id="h2-1"><span class="num">0</span>怎麼看這份文件</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>章節</th>
+<th>內容</th>
+<th>給誰用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>工作全景圖：所有工作分類</td>
+<td>主管、AI 應用師</td>
+</tr>
+<tr>
+<td>2</td>
+<td>一天 / 一週 / 一個月的時間節奏</td>
+<td>秘書本人、代理人</td>
+</tr>
+<tr>
+<td>3</td>
+<td>各項工作的詳細流程圖（現況）</td>
+<td>系統開發、新人交接</td>
+</tr>
+<tr>
+<td>4</td>
+<td>案件行政程序（防綜 / 性能 / 紅白皮書）</td>
+<td>工程師、行政</td>
+</tr>
+<tr>
+<td>5</td>
+<td>痛點整理</td>
+<td>主管</td>
+</tr>
+<tr>
+<td>6</td>
+<td>改善與 AI 導入建議（含改善後流程圖）</td>
+<td>主管、AI 應用師</td>
+</tr>
+<tr>
+<td>7</td>
+<td>導入路線圖與優先順序</td>
+<td>全體</td>
+</tr>
+<tr>
+<td>8</td>
+<td>AI 跟進任務總表</td>
+<td>AI 系統設定</td>
+</tr>
+<tr>
+<td>9</td>
+<td>待確認事項（文件之間不一致處）</td>
+<td>秘書、主管</td>
+</tr>
+</tbody>
+</table></div>
+<p>圖例：<strong>方框</strong>＝動作，<strong>菱形</strong>＝判斷，<strong>圓角</strong>＝開始/結束，標 <span class="ai">AI</span> 的步驟＝建議交給 AI 或系統自動化。</p>
+<hr />
+<h2 id="h2-2"><span class="num">1</span>工作全景圖</h2>
+<p>行政秘書的工作可以分成 8 大類、約 60 項。數量多、觸發來源分散（老闆、主管、工程師、會計、業務、外部單位、時鐘），這正是「事情太雜」的根源。</p>
+<div class="diagram"><pre class="mermaid">mindmap
+  root((&quot;行政秘書&lt;br/&gt;工作全景&quot;))
+    崔sir辦公室
+      行程確認 Google月曆
+      倒水 水壺 泡茶
+      窗簾 開燈 開窗
+      便當擺放與收拾
+      打掃與月度桌面保養
+      下班關電腦 鎖門
+      飲水機 週一開 週五關
+      濾心更換
+      臨時交辦
+    辦公環境與設備
+      燈光 ABCDEFGH 區
+      iPad 音樂
+      冷氣 氣窗
+      招牌燈 門廳電視牆
+      事務機 大圖機 耗材
+      植物 冰箱 零食櫃
+      門鎖密碼 捲門鑰匙
+      門廳節慶布置
+      清潔巡檢
+    文書與公文
+      紙本公文收文
+      發文 蓋發文章
+      電子公文收件
+      公文送簽與歸檔
+      傳真收發登載
+      公司 Email 收件登載
+      公文統計表
+    會議
+      週會記錄 第一 第二階段
+      月會資料與報告
+      外出會議記錄登載
+      未繳記錄追蹤
+    郵件與物流
+      掛號 平信 包裹登記分發
+      快遞叫件與收件
+      郵局寄件 繳款
+      DM 寄送
+      報告書送件取件
+    餐飲福利
+      每日便當訂購
+      每週下午茶
+      零食櫃補充
+    財務採購與資產
+      零用金盤點 便當收款
+      文具 紙張 清潔用品採購
+      快遞單據金額統整
+      採購簽呈
+      財產清冊 標籤
+      筆電 器材 書籍借用
+      公務車登記
+    協助專案與知識管理
+      報告書裝訂 紅白皮書
+      裝訂廠聯絡
+      建築師事務所用印
+      CAD 面積 步行距離
+      書籍與電子書登載
+      名片王
+      官網實績更新
+      新人報到
+</pre></div>
+<h3 id="h3-1">1.1 依「觸發來源」分類（這是之後導入 AI 的關鍵）</h3>
+<div class="table"><table>
+<thead>
+<tr>
+<th>觸發來源</th>
+<th>代表工作</th>
+<th>目前接收方式</th>
+<th>問題</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>⏰ 時鐘（固定時間）</td>
+<td>開燈、iPad、窗簾、訂便當、週會、月會、飲水機</td>
+<td>自己記 / iPad 鬧鐘</td>
+<td>靠記憶，容易漏</td>
+</tr>
+<tr>
+<td>👔 崔sir</td>
+<td>交辦、倒水、辦公室事務</td>
+<td>口頭</td>
+<td>口頭交辦最容易忘</td>
+</tr>
+<tr>
+<td>👩‍💼 林姐 / 主管</td>
+<td>採購簽核、交辦</td>
+<td>口頭 / LINE</td>
+<td>混在一起</td>
+</tr>
+<tr>
+<td>👷 工程師 / 承辦</td>
+<td>叫快遞、發文、裝訂、紅白皮書</td>
+<td>口頭 / LINE</td>
+<td>打斷工作、無排序</td>
+</tr>
+<tr>
+<td>💰 會計</td>
+<td>快遞請款、郵資、勞保局信件</td>
+<td>口頭 / 紙本</td>
+<td>—</td>
+</tr>
+<tr>
+<td>📮 外部（郵差、快遞、公文系統、傳真）</td>
+<td>收信、收文、電子公文</td>
+<td>實體到件 / 上網查</td>
+<td>需人工輪詢</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="h2-3"><span class="num">2</span>時間節奏</h2>
+<h3 id="h3-2">2.1 一天的流程（以週一為例）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;08:30 到公司&quot;]) --&gt; B[&quot;整理桌面&lt;br/&gt;照顧植物&quot;]
+    B --&gt; C[&quot;09:00 開電腦&lt;br/&gt;準備週會資料、錄音筆&quot;]
+    C --&gt; C1[&quot;最晚 09:30 開 ABCDEFGH 燈&lt;br/&gt;週一週會不開 iPad 音樂&quot;]
+    C1 --&gt; C2[&quot;崔sir辦公室：倒水、開窗、開燈、&lt;br/&gt;依陽光拉窗簾、水壺放飲水機旁&quot;]
+    C2 --&gt; D[&quot;09:30 週會&lt;br/&gt;老闆進來先幫他裝水&lt;br/&gt;負責第一、二階段記錄&quot;]
+    D --&gt; E[&quot;約 10:00 會議結束&quot;]
+    E --&gt; F{&quot;10:30 前&quot;}
+    F --&gt; F1[&quot;訂便當&quot;]
+    F --&gt; F2[&quot;開崔sir辦公室 3M 飲水機&lt;br/&gt;按壓約 3 秒&quot;]
+    F1 --&gt; G[&quot;處理臨時插單&lt;br/&gt;叫快遞等&quot;]
+    F2 --&gt; G
+    G --&gt; H[&quot;11:00 整理上週未完公文&lt;br/&gt;整理今日週會記錄&quot;]
+    H --&gt; H1[&quot;11:30 依陽光拉窗簾&quot;]
+    H1 --&gt; I[&quot;12:00 關燈只留櫃台黃燈&lt;br/&gt;便當送崔sir辦公室&lt;br/&gt;咖啡塑膠墊 + A4 紙或 DM&quot;]
+    I --&gt; J[&quot;午休&quot;]
+    J --&gt; K[&quot;13:30 開燈 + iPad 音樂&lt;br/&gt;收崔sir便當、清洗餐具與快煮壺&quot;]
+    K --&gt; L[&quot;收信與分發&lt;br/&gt;大樓約 11 點多送掛號&quot;]
+    L --&gt; M[&quot;跑公文流程&lt;br/&gt;收文、發文、送簽、歸檔&quot;]
+    M --&gt; N[&quot;16:00 依陽光拉窗簾&quot;]
+    N --&gt; O[&quot;17:30 打掃崔sir辦公室&quot;]
+    O --&gt; P[&quot;18:00 下班關閉檢查&lt;br/&gt;見 3.13&quot;]
+    P --&gt; Q([&quot;下班&quot;])
+</pre></div>
+<h3 id="h3-3">2.2 一週的節奏</h3>
+<div class="diagram"><pre class="mermaid">flowchart LR
+    subgraph MON[&quot;週一&quot;]
+      M1[&quot;09:30 週會&lt;br/&gt;列出超過 14 天未繳&lt;br/&gt;會議記錄、公文&quot;]
+      M2[&quot;報告公文收文統計&lt;br/&gt;與同仁差勤統計&quot;]
+      M3[&quot;週會後開飲水機&quot;]
+      M4[&quot;下午茶：選店、開投票、做表&quot;]
+      M5[&quot;辦公室整理與清潔巡檢&quot;]
+    end
+    subgraph TUE[&quot;週二&quot;]
+      T1[&quot;約 16:30 下午茶下訂&lt;br/&gt;前一天先給店家確認&quot;]
+      T2[&quot;清潔大姐到班&lt;br/&gt;協助、巡視植物&quot;]
+    end
+    subgraph WED[&quot;週三&quot;]
+      W1[&quot;下午茶送達&quot;]
+      W2[&quot;辦公室整理與清潔巡檢&quot;]
+    end
+    subgraph THU[&quot;週四&quot;]
+      H1[&quot;Email 提醒工程師&lt;br/&gt;未繳會議記錄、未簽出公文&lt;br/&gt;再用 LINE 告知&quot;]
+      H2[&quot;辦公室整理與清潔巡檢&quot;]
+    end
+    subgraph FRI[&quot;週五&quot;]
+      F1[&quot;清潔大姐到班&quot;]
+      F2[&quot;19:00 Tapo 自動關飲水機&quot;]
+      F3[&quot;抽屜零用金盤點&lt;br/&gt;便當收款&quot;]
+    end
+    MON --&gt; TUE --&gt; WED --&gt; THU --&gt; FRI
+</pre></div>
+<blockquote>
+<p>崔sir辦公室與林姐辦公室：週一至週四由行政加強打掃；週二、週五由清潔大姐協助。</p>
+</blockquote>
+<h3 id="h3-4">2.3 一個月的節奏</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    S([&quot;每月&quot;]) --&gt; A[&quot;公文統計表&lt;br/&gt;已歸檔 / 已上呈 / 在承辦手上&quot;]
+    S --&gt; B[&quot;紙本書籍系統登載&lt;br/&gt;電子書籍與法規搜尋統計&quot;]
+    S --&gt; C[&quot;名片王掃描 → 修正 →&lt;br/&gt;月底匯出到兩個 NAS 路徑 →&lt;br/&gt;輸入公司系統&quot;]
+    S --&gt; D[&quot;文具盤點 → 林姐簽核 →&lt;br/&gt;依廠商叫貨&lt;br/&gt;約每 1–1.5 個月&quot;]
+    S --&gt; E[&quot;紙張耗材訂購&lt;br/&gt;九鼎、宏羚&quot;]
+    S --&gt; F[&quot;快遞單據金額統整&lt;br/&gt;依事務所 / 水星分類&quot;]
+    S --&gt; G[&quot;傳真、Email 收件登載統計&quot;]
+    S --&gt; H[&quot;崔sir辦公桌保養&lt;br/&gt;穩潔 → 保護蠟 → 碧麗珠&quot;]
+    A &amp; B &amp; C &amp; G --&gt; R[&quot;月會資料彙整&quot;]
+    R --&gt; R1[&quot;傳真份數&quot;]
+    R --&gt; R2[&quot;紅皮書 + 白皮書 + 備查案數量&quot;]
+    R --&gt; R3[&quot;電子書籍統計&quot;]
+    R --&gt; R4[&quot;紙本名片數量&quot;]
+    R --&gt; R5[&quot;書籍借用逾期&quot;]
+    R1 &amp; R2 &amp; R3 &amp; R4 &amp; R5 --&gt; T([&quot;月會口頭報告&quot;])
+</pre></div>
+<p><strong>月會報告固定說詞</strong>（可直接讓 AI 套數字產生）：</p>
+<blockquote>
+<p>傳真 □ 月份共 □ 份，已按照類別分送給各承辦人員。
+公文清冊：內政部、基金會、建築中心各來 □ 份，尚未歸檔 □ 份，超過 14 天有 □ 份，並已通知承辦人員。</p>
+</blockquote>
+<hr />
+<h2 id="h2-4"><span class="num">3</span>各項工作詳細流程（現況）</h2>
+<h3 id="h3-5">3.1 週會（每週一 09:30）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;09:00 準備會議資料、錄音筆&quot;]) --&gt; B[&quot;老闆進會議室前先裝水&quot;]
+    B --&gt; P1
+    subgraph P1[&quot;第一階段：各組專案報告（秘書記錄）&quot;]
+      P1a[&quot;A、B、C、D 組專案報告&quot;] --&gt; P1b[&quot;審議會分享&quot;] --&gt; P1c[&quot;法規資料搜尋分享&quot;]
+    end
+    P1 --&gt; P2
+    subgraph P2[&quot;第二階段：全體會議，加入 E 組（秘書記錄）&quot;]
+      P2a[&quot;a. 本週外出行程報告&quot;] --&gt; P2b[&quot;b. 上週待辦追蹤&quot;]
+      P2b --&gt; P2c[&quot;c. 業務專案追蹤&quot;]
+      P2c --&gt; P2d[&quot;d. 秘書報告：&lt;br/&gt;公文收文統計、差勤統計&quot;]
+    end
+    P2 --&gt; P3[&quot;第三階段：資訊同仁會議&lt;br/&gt;非秘書記錄&quot;]
+    P3 --&gt; P4[&quot;第四階段：行銷會議&lt;br/&gt;非秘書記錄&quot;]
+    P4 --&gt; Z[&quot;整理會議記錄 → 系統登載&quot;]
+    Z --&gt; Y([&quot;下週週會追蹤待辦&quot;])
+</pre></div>
+<h3 id="h3-6">3.2 每日便當訂購</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;週會或上午&quot;]) --&gt; B[&quot;確認今日人數&lt;br/&gt;多數人固定餐&quot;]
+    B --&gt; C{&quot;有人要改餐?&quot;}
+    C -- &quot;是，口頭或 LINE&quot; --&gt; D[&quot;手動修改訂單&quot;]
+    C -- 否 --&gt; E[&quot;沿用固定訂單&quot;]
+    D --&gt; F[&quot;10:30 前向店家下訂&lt;br/&gt;太晚部分店家無法配合&quot;]
+    E --&gt; F
+    F --&gt; G[&quot;12:00 到餐、分送&lt;br/&gt;崔sir便當送辦公室&quot;]
+    G --&gt; H[&quot;記帳&quot;]
+    H --&gt; I[&quot;每週：抽屜零用金盤點 + 便當收款&quot;]
+</pre></div>
+<h3 id="h3-7">3.3 每週下午茶</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;週一&quot;]) --&gt; B[&quot;選定店家&quot;]
+    B --&gt; C[&quot;製作 Google 表單投票&lt;br/&gt;做統計表&quot;]
+    C --&gt; D{&quot;所有人都填了?&quot;}
+    D -- 否 --&gt; E[&quot;人工逐一提醒&lt;br/&gt;每次 10 人中約 3–4 人&quot;]
+    E --&gt; D
+    D -- 是 --&gt; F[&quot;週二約 16:30 下訂&lt;br/&gt;給店家一晚加半天準備&quot;]
+    F --&gt; G[&quot;週三下午送達、分發&quot;]
+    G --&gt; H([&quot;收款 / 零用金&quot;])
+</pre></div>
+<h3 id="h3-8">3.4 收信、掛號、包裹分發</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;大樓約 11 點多送掛號&lt;br/&gt;或同事午餐順便帶上來&quot;]) --&gt; B{&quot;廣告信?&quot;}
+    B -- 是 --&gt; X([&quot;不登記&quot;])
+    B -- 否 --&gt; C[&quot;填寫信件登記表&quot;]
+    C --&gt; D{&quot;信件類型&quot;}
+    D -- &quot;勞保局、帳單、扣繳憑單&quot; --&gt; E[&quot;交給會計&quot;]
+    D -- &quot;公文&quot; --&gt; F[&quot;行政自己簽收&lt;br/&gt;走收文流程 3.6&quot;]
+    D -- &quot;有寫承辦姓名&quot; --&gt; G[&quot;交給承辦簽收&quot;]
+    D -- &quot;快遞來件&quot; --&gt; H{&quot;是公司叫的件?&quot;}
+    H -- 是 --&gt; I[&quot;全球快遞粉單留存&quot;]
+    H -- 否 --&gt; J[&quot;一般收件處理&quot;]
+</pre></div>
+<h3 id="h3-9">3.5 快遞叫件（全球快遞）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;同事臨時要叫快遞&quot;]) --&gt; B[&quot;登入快遞系統叫件&quot;]
+    B --&gt; C[&quot;填寫承辦與對方聯絡資訊&quot;]
+    C --&gt; D[&quot;資料放櫃台&quot;]
+    D --&gt; E[&quot;快遞取件&quot;]
+    E --&gt; F[&quot;最後一聯藍單收存&lt;br/&gt;寫上案件編號&quot;]
+    F --&gt; G[&quot;月底會計給結帳資料&quot;]
+    G --&gt; H[&quot;依事務所 / 水星分類&lt;br/&gt;填金額與合約編號給會計&quot;]
+</pre></div>
+<h3 id="h3-10">3.6 公文收文</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;收到紙本公文&quot;]) --&gt; B[&quot;填寫信件登記表&quot;]
+    B --&gt; C[&quot;行政簽收&quot;]
+    C --&gt; D[&quot;掃描&quot;]
+    D --&gt; E[&quot;寫水星公文標籤&quot;]
+    E --&gt; F[&quot;系統查詢相關案件承辦&quot;]
+    F --&gt; G[&quot;掃描檔改名為發文文號&quot;]
+    G --&gt; H[&quot;分類內容&quot;]
+    H --&gt; I[&quot;Excel 建收文編號&lt;br/&gt;加掃描檔超連結&quot;]
+    I --&gt; J[&quot;填寫水星或事務所收文號碼&quot;]
+    J --&gt; K[&quot;承辦簽收 蓋章&quot;]
+    K --&gt; L[&quot;承辦處理後放回資料夾&quot;]
+    L --&gt; M[&quot;Excel 填收文日期&lt;br/&gt;與送崔sir日期&quot;]
+    M --&gt; N[&quot;送崔sir簽名&quot;]
+    N --&gt; O([&quot;歸檔流程 3.8&quot;])
+</pre></div>
+<h3 id="h3-11">3.7 公文發文</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;承辦交簽核好的草稿&quot;]) --&gt; B{&quot;發文類型&quot;}
+    B -- 基金會發文 --&gt; B1[&quot;簽呈到怡君姊&quot;]
+    B -- 結案發文 --&gt; B2[&quot;簽呈到崔sir&quot;]
+    B1 &amp; B2 --&gt; C[&quot;在發文 Excel 登打&lt;br/&gt;312-發文 水星&quot;]
+    C --&gt; D[&quot;在草稿寫上文號&lt;br/&gt;交回承辦&quot;]
+    D --&gt; E[&quot;承辦修改後列印一份給行政&quot;]
+    E --&gt; F[&quot;蓋發文章&quot;]
+    F --&gt; G[&quot;向承辦索取草稿歸檔&quot;]
+    G --&gt; H[&quot;掃描草稿&quot;]
+    H --&gt; I[&quot;更新系統專案&quot;]
+    I --&gt; J[&quot;蓋存參章、寫歸檔日期&quot;]
+    J --&gt; K([&quot;紙本放入資料夾&lt;br/&gt;依發文日由舊到新&quot;])
+</pre></div>
+<h3 id="h3-12">3.8 公文簽核後歸檔</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;崔sir簽好的紙本公文&quot;]) --&gt; S1
+    subgraph S1[&quot;階段一：登錄&quot;]
+      A1[&quot;紙本寫歸檔日期&quot;] --&gt; A2[&quot;Excel 登打歸檔日期&quot;]
+      A2 --&gt; A3[&quot;掃描&quot;] --&gt; A4[&quot;與收文時函文合併&quot;] --&gt; A5[&quot;更新系統專案&quot;]
+    end
+    S1 --&gt; S2
+    subgraph S2[&quot;階段二：整理&quot;]
+      B1[&quot;依案件名稱分類&quot;] --&gt; B2[&quot;依發文日期由舊到新排序&quot;]
+    end
+    S2 --&gt; C{&quot;已有國土署&lt;br/&gt;核准函?&quot;}
+    C -- 是 --&gt; D([&quot;結案，用資料夾收存&quot;])
+    C -- 否 --&gt; E{&quot;有建築中心或基金會函文&lt;br/&gt;關鍵字：檢送一式7份報告書?&quot;}
+    E -- 是 --&gt; D
+    E -- 否 --&gt; F([&quot;繼續列管&quot;])
+</pre></div>
+<blockquote>
+<p>特殊狀況：副本查核案件的相關公文，只歸檔在原案件資料夾。
+紙本整理頻率：預計每半年一次（暫定 2 月、8 月），下半年案量少時可提早。
+紙本收文排序：依收文時間；分類為 ① 工程顧問、工程科技、消防開發、防災工程來文 ② 建築中心 ③ 基金會 ④ 國土署 ⑤ 消防局。發文以工程顧問為主，依序號、按年份存檔。</p>
+</blockquote>
+<h3 id="h3-13">3.9 電子公文收件</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;每日&quot;]) --&gt; B[&quot;登入經濟部電子收文網站&lt;br/&gt;使用工商憑證&quot;]
+    B --&gt; C{&quot;登入成功?&quot;}
+    C -- &quot;否，憑證卡鎖&quot; --&gt; D[&quot;用工商憑證解卡&lt;br/&gt;moeacaweb.nat.gov.tw&quot;]
+    D --&gt; B
+    C -- 是 --&gt; E[&quot;等待約 5 分鐘&quot;]
+    E --&gt; F{&quot;有新電子公文?&quot;}
+    F -- 是 --&gt; G([&quot;進入收文流程 3.6&quot;])
+    F -- 否 --&gt; H([&quot;結束&quot;])
+</pre></div>
+<h3 id="h3-14">3.10 會議記錄（同仁外出開會）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    subgraph R1[&quot;① 登錄會議&quot;]
+      A1[&quot;看 Google 行事曆&quot;] --&gt; A2[&quot;Excel 打會議名稱、日期、承辦&quot;]
+      A2 --&gt; A3[&quot;系統 → 文件管理 → 會議記錄&lt;br/&gt;登入會議名稱、日期、承辦&quot;]
+    end
+    subgraph R2[&quot;② 收會議記錄&quot;]
+      B1[&quot;Excel 打收件日期&lt;br/&gt;與送崔sir日期&quot;] --&gt; B2[&quot;系統填收文日期&lt;br/&gt;與送崔sir日期&quot;]
+    end
+    subgraph R3[&quot;③ 回簽歸檔&quot;]
+      C1[&quot;掃描簽好的記錄&quot;] --&gt; C2[&quot;改檔名&lt;br/&gt;YYMMDD 案名+會議名稱 案件編號&quot;]
+      C2 --&gt; C3{&quot;有案件編號?&quot;}
+      C3 -- &quot;尚未成案&quot; --&gt; C4[&quot;系統搜尋案名&quot;]
+      C3 -- &quot;非屬案件&quot; --&gt; C5[&quot;括號內打 其他&quot;]
+      C3 -- 有 --&gt; C6[&quot;搜尋案件、對應案件&quot;]
+      C4 &amp; C5 &amp; C6 --&gt; C7[&quot;上傳、存檔&quot;]
+      C7 --&gt; C8[&quot;PDF 歸檔到 NAS 會議記錄&quot;]
+    end
+    R1 --&gt; R2 --&gt; R3
+    X[&quot;不追蹤：內部會議、崔sir私人行程、&lt;br/&gt;審議會（事後會寄信到公司）&quot;]
+</pre></div>
+<h3 id="h3-15">3.11 未繳追蹤與催繳</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;每週一 09:30 週會&quot;]) --&gt; B[&quot;系統列出超過 14 天&lt;br/&gt;未繳會議記錄的同仁&quot;]
+    B --&gt; C[&quot;列出尚未繳交的公文&quot;]
+    C --&gt; D[&quot;週會中報告&quot;]
+    D --&gt; E([&quot;每週四&quot;])
+    E --&gt; F[&quot;Email 提醒工程師：&lt;br/&gt;會議記錄、公文尚未給崔sir簽名&quot;]
+    F --&gt; G[&quot;再用 LINE 告知&quot;]
+    G --&gt; H{&quot;已繳?&quot;}
+    H -- 否 --&gt; A
+    H -- 是 --&gt; I([&quot;結案&quot;])
+</pre></div>
+<h3 id="h3-16">3.12 崔sir辦公室例行（2026.10.30 版）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;09:00&quot;]) --&gt; A1[&quot;倒水、開窗、開燈&lt;br/&gt;依陽光拉窗簾&quot;]
+    A1 --&gt; A2[&quot;外出水壺裝好放飲水機旁&lt;br/&gt;冬：保溫壺 夏：透明水壺&quot;]
+    A2 --&gt; A3[&quot;查 Google 月曆&lt;br/&gt;藍：水星 綠：協會&quot;]
+    A3 --&gt; B([&quot;11:30&quot;])
+    B --&gt; B1[&quot;依陽光拉窗簾&lt;br/&gt;沙發靠座位那側保留&quot;]
+    B1 --&gt; C([&quot;12:00&quot;])
+    C --&gt; C1{&quot;有人在辦公室&lt;br/&gt;或在講電話?&quot;}
+    C1 -- 是 --&gt; C2[&quot;便當放電視旁&quot;]
+    C1 -- 否 --&gt; C3[&quot;便當放桌上&quot;]
+    C2 &amp; C3 --&gt; D([&quot;13:30&quot;])
+    D --&gt; D1[&quot;收便當、洗餐具&lt;br/&gt;快煮壺洗好用黃布墊著晾乾&quot;]
+    D1 --&gt; E([&quot;16:00&quot;])
+    E --&gt; E1[&quot;依陽光拉窗簾&quot;]
+    E1 --&gt; F([&quot;17:30 打掃&quot;])
+    F --&gt; G([&quot;18:00&quot;])
+    G --&gt; G1[&quot;確認電腦、電扇關閉&quot;]
+    G1 --&gt; G2[&quot;待簽公文、會議記錄送入&quot;]
+    G2 --&gt; G3[&quot;整理桌面、拉窗簾&quot;]
+    G3 --&gt; G4{&quot;崔sir還在?&quot;}
+    G4 -- 是 --&gt; G5([&quot;不用鎖&quot;])
+    G4 -- &quot;否，或外出很久&quot; --&gt; G6[&quot;確認鑰匙在公文架上&lt;br/&gt;鎖門&quot;]
+</pre></div>
+<p><strong>打掃細節</strong></p>
+<div class="table"><table>
+<thead>
+<tr>
+<th>項目</th>
+<th>頻率</th>
+<th>方法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>掃地</td>
+<td>每天</td>
+<td>從崔sir沙發椅後開始，由內往外</td>
+</tr>
+<tr>
+<td>拖地</td>
+<td>每週</td>
+<td>同上，由內往外</td>
+</tr>
+<tr>
+<td>倒垃圾</td>
+<td>每天</td>
+<td>崔sir與林姐辦公室</td>
+</tr>
+<tr>
+<td>迎賓桌</td>
+<td>視髒汙</td>
+<td>撢子為主，必要時抹布，避免刮痕</td>
+</tr>
+<tr>
+<td>辦公桌保養</td>
+<td>每月</td>
+<td>穩潔 → 保護蠟 → 碧麗珠，三條抹布分開（器具在 3M 飲水機下方）</td>
+</tr>
+<tr>
+<td>擺飾</td>
+<td>定期</td>
+<td>撢子，從水晶洞那排往門口順時鐘</td>
+</tr>
+<tr>
+<td>沙發、椅子</td>
+<td>定期</td>
+<td>擦拭</td>
+</tr>
+<tr>
+<td>電話</td>
+<td>定期</td>
+<td>酒精棉片（小儲藏室綠色小格抽屜）</td>
+</tr>
+<tr>
+<td>水晶洞</td>
+<td>不定時</td>
+<td>噴壺噴嬰兒油</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>泡茶</strong>：茶葉不超過濾水突起中心點；第一泡約 5 秒；之後裝水直接濾入杯中再裝滿；最多 6 泡就換新；茶葉不可泡在水裡（會苦澀），可先泡好放保溫壺。</p>
+<h3 id="h3-17">3.13 辦公環境開關與下班檢查</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    subgraph AM[&quot;上班&quot;]
+      a1[&quot;08:00 同事開事務機&quot;] --&gt; a2[&quot;09:30 前開 ABCDEFGH 燈&lt;br/&gt;開 iPad 音樂（週一週會不開）&quot;]
+      a2 --&gt; a3{&quot;季節&quot;}
+      a3 -- &quot;夏天，溫度超過 26°C&quot; --&gt; a4[&quot;冷氣開 25°C&quot;]
+      a3 -- 冬天 --&gt; a5[&quot;只開氣窗&quot;]
+      a2 --&gt; a6[&quot;補 A3、A4 紙&lt;br/&gt;大圖機 A1 由 D 組自行換&quot;]
+    end
+    subgraph NOON[&quot;中午&quot;]
+      n1[&quot;12:00–12:02 關燈&lt;br/&gt;只留櫃台黃燈&quot;] --&gt; n2[&quot;13:30 開燈 + iPad 音樂&lt;br/&gt;iPad 有鬧鐘&quot;]
+    end
+    subgraph GUEST[&quot;客人來訪&quot;]
+      g1[&quot;開招牌燈 Mercuryfire&quot;] --&gt; g2[&quot;開長廊燈 2 盞&quot;] --&gt; g3[&quot;開門廳電視牆&lt;br/&gt;Samsung 遙控器&quot;]
+    end
+    subgraph PM[&quot;下班&quot;]
+      p1[&quot;關招牌燈、櫃台燈、iPad&quot;] --&gt; p2[&quot;主冷氣 傑勛 18:30 關&lt;br/&gt;巡視大會議室冷氣&quot;]
+      p2 --&gt; p3[&quot;崔sir、林姐辦公室垃圾&quot;] --&gt; p4[&quot;整理裝訂桌&quot;]
+      p4 --&gt; p5[&quot;巡檢遺留垃圾&quot;] --&gt; p6[&quot;茶水間垃圾、廢水&quot;]
+      p6 --&gt; p7[&quot;同事離開區域關燈&quot;]
+    end
+    AM --&gt; NOON --&gt; PM
+</pre></div>
+<h3 id="h3-18">3.14 採購、零用金、郵寄</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    subgraph BUY[&quot;文具 / 耗材採購&quot;]
+      b1[&quot;每月盤點文具數量&quot;] --&gt; b2[&quot;填採購數量&quot;] --&gt; b3[&quot;林姐簽核&quot;] --&gt; b4[&quot;依廠商類別叫貨&quot;]
+      b5[&quot;EPSON 墨水自動寄出&lt;br/&gt;不夠時打客服&quot;]
+      b6[&quot;文具、影印以外的採購&lt;br/&gt;需另寫採購簽呈&quot;]
+    end
+    subgraph POST[&quot;郵局寄件與繳款&quot;]
+      p1[&quot;跑郵局寄信&quot;] --&gt; p2[&quot;掛號紙條寫收件人&lt;br/&gt;與合約編號&quot;]
+      p2 --&gt; p3[&quot;填現金支出傳票金額&lt;br/&gt;含總額&quot;]
+      p3 --&gt; p4[&quot;收據用迴紋針夾好給會計&quot;]
+      p4 --&gt; p5[&quot;會計整理完後領款&quot;]
+    end
+</pre></div>
+<h3 id="h3-19">3.15 借用與登記</h3>
+<div class="diagram"><pre class="mermaid">flowchart LR
+    A([&quot;同事來借&quot;]) --&gt; B{&quot;借什麼&quot;}
+    B -- 器材 --&gt; C[&quot;器材資料夾簽名&lt;br/&gt;用鑰匙開防潮箱&quot;]
+    B -- 消耗品 --&gt; D[&quot;資料夾簽名後領取&quot;]
+    B -- 書籍 --&gt; E[&quot;填寫書名、編號&quot;]
+    B -- 筆電 --&gt; F[&quot;筆電借用登記&quot;]
+    B -- 公務車 --&gt; G[&quot;公務車登記&quot;]
+    C &amp; D &amp; E &amp; F &amp; G --&gt; H([&quot;月會報告逾期未還&quot;])
+</pre></div>
+<h3 id="h3-20">3.16 名片王與書籍登載</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    subgraph CARD[&quot;名片王&quot;]
+      c1[&quot;掃描名片正反面&lt;br/&gt;紙本還給承辦&quot;] --&gt; c2[&quot;名片王修正內文&quot;]
+      c2 --&gt; c3[&quot;月底匯出照片到&lt;br/&gt;NAS 路徑1、路徑2&quot;]
+      c3 --&gt; c4[&quot;當月名片輸入公司系統&quot;]
+    end
+    subgraph BOOK[&quot;書籍&quot;]
+      k1[&quot;登入系統 → 文件管理 → 書籍列表&quot;] --&gt; k2[&quot;登記種類、行政區&quot;]
+      k2 --&gt; k3[&quot;編號、貼標籤&quot;] --&gt; k4[&quot;存檔&quot;]
+    end
+</pre></div>
+<hr />
+<h2 id="h2-5"><span class="num">4</span>案件行政程序（協助工程師）</h2>
+<h3 id="h3-21">4.1 防火避難綜合檢討（防綜案）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;案件申請&quot;]) --&gt; B[&quot;申請書用印&lt;br/&gt;承辦 → 案件主管 → 會計&quot;]
+    B --&gt; C[&quot;初審掛件審查單位&lt;br/&gt;連同申請書&quot;]
+    C --&gt; D[&quot;收到意見公文&quot;]
+    D --&gt; E[&quot;回覆資料掛件&quot;]
+    E --&gt; F{&quot;需要開會?&quot;}
+    F -- 是 --&gt; G[&quot;收到會議通知公文&quot;] --&gt; H[&quot;收到審議會會議記錄公文&quot;]
+    F -- 否 --&gt; I
+    H --&gt; I[&quot;最終版報告書掛件&quot;]
+    I --&gt; J[&quot;收到評定通過公文&quot;]
+    J --&gt; K{&quot;性能設計案?&quot;}
+    K -- &quot;否（2019/11/4 起評定通過即可）&quot; --&gt; L([&quot;進入紅白皮書&quot;])
+    K -- 是 --&gt; M[&quot;收到國土署通過公文&quot;] --&gt; L
+</pre></div>
+<h3 id="h3-22">4.2 紅皮書 / 白皮書（使用執照前 = 紅，使用執照後 = 白）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;案件通過&quot;]) --&gt; T{&quot;案件類型&quot;}
+    T -- &quot;防綜案 共 7 本&quot; --&gt; P1
+    T -- &quot;性能案 共 8 本&quot; --&gt; Q1[&quot;承辦先請裝訂廠做一份&lt;br/&gt;郵寄內政部營建署&quot;]
+    Q1 --&gt; Q2[&quot;內政部認可申請書函文&lt;br/&gt;平信寄到公司，請留意&quot;]
+    Q2 --&gt; P2
+    P1[&quot;評定單位認可申請書函文&quot;] --&gt; P2[&quot;承辦列印摘要&quot;]
+    P2 --&gt; P3[&quot;行政抽換正本頁&lt;br/&gt;見 4.3&quot;]
+    P3 --&gt; P4[&quot;通知裝訂廠&quot;]
+    P4 --&gt; P5[&quot;完成後送評定單位用印&quot;]
+    P5 --&gt; P6{&quot;性能案?&quot;}
+    P6 -- 是 --&gt; P7[&quot;國土署用印&lt;br/&gt;國土署收 3 本&quot;]
+    P6 -- 否 --&gt; P8[&quot;評定單位收 3 本&quot;]
+    P7 &amp; P8 --&gt; P9[&quot;水星留存 1 本歸檔&quot;]
+    P9 --&gt; P10([&quot;建築師事務所 + 業主共 3 本&quot;])
+</pre></div>
+<h3 id="h3-23">4.3 紅白皮書製作細節（行政負責段）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;承辦印好摘要&lt;br/&gt;通常 7 份，特殊 8 份&quot;]) --&gt; B[&quot;準備正本：&lt;br/&gt;① 委員同意書簽名&lt;br/&gt;② 第二章最後一頁建築師法規簽名 + 大小章&lt;br/&gt;③ 公司聲明書&quot;]
+    B --&gt; C[&quot;每份抽換建築師法規簽名頁&quot;]
+    C --&gt; D[&quot;其中一份另換委員同意書&lt;br/&gt;與公司聲明書正本&lt;br/&gt;貼便條紙備註&quot;]
+    D --&gt; E{&quot;評定單位&quot;}
+    E -- 基金會 --&gt; E1[&quot;第二章法規檢討表建築師簽名 1 份正本&lt;br/&gt;其餘彩印&lt;br/&gt;建築圖說：不用蓋章簽名&quot;]
+    E -- 建築中心 --&gt; E2[&quot;第二章法規檢討表建築師簽名 1 份正本&lt;br/&gt;其餘彩印&lt;br/&gt;建築圖說：建築師蓋章&quot;]
+    E1 &amp; E2 --&gt; F[&quot;向承辦索取封面、書背 PDF&lt;br/&gt;部分裝訂廠要 Word&quot;]
+    F --&gt; G[&quot;寄給裝訂廠&quot;]
+    G --&gt; H[&quot;電話確認收到、確認時程&quot;]
+    H --&gt; I([&quot;之後請裝訂廠直接與承辦聯繫&quot;])
+</pre></div>
+<blockquote>
+<p>使用執照後變更的白皮書，需另外找建築師簽名位置。
+消防圖 A1 折法另有步驟說明（大小章需露出）。</p>
+</blockquote>
+<hr />
+<h2 id="h2-6"><span class="num">5</span>痛點整理</h2>
+<div class="table"><table>
+<thead>
+<tr>
+<th>#</th>
+<th>痛點</th>
+<th>現況證據</th>
+<th>影響</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P1</td>
+<td><strong>任務入口太多</strong>：口頭、LINE、紙條、時鐘、外部到件</td>
+<td>「我現在最大的問題就是事情太雜了」</td>
+<td>分心、無法排序</td>
+</tr>
+<tr>
+<td>P2</td>
+<td><strong>口頭交辦容易忘</strong></td>
+<td>老闆交代整理儲藏室紙袋，做完前一件就忘了</td>
+<td>漏辦、影響老闆信任</td>
+</tr>
+<tr>
+<td>P3</td>
+<td><strong>臨時插單打斷</strong></td>
+<td>訂完餐後同事臨時叫快遞，「莫名其妙就 11:00」</td>
+<td>上午時段被切碎</td>
+</tr>
+<tr>
+<td>P4</td>
+<td><strong>人工催繳耗時</strong></td>
+<td>下午茶每次 3–4 人要人工確認；會議記錄、公文每週 email + LINE 催</td>
+<td>重複勞動</td>
+</tr>
+<tr>
+<td>P5</td>
+<td><strong>同一筆資料重複登打</strong></td>
+<td>公文同時寫在登記表、Excel、系統、紙本標籤；會議記錄同時 Excel + 系統</td>
+<td>易出錯、耗時</td>
+</tr>
+<tr>
+<td>P6</td>
+<td><strong>定時瑣事靠記憶</strong></td>
+<td>燈、iPad、窗簾 11:30 / 16:00、飲水機週一開</td>
+<td>心力被佔用</td>
+</tr>
+<tr>
+<td>P7</td>
+<td><strong>月報要手動統計</strong></td>
+<td>傳真、公文、名片、書籍、紅白皮書數量</td>
+<td>月底壓力</td>
+</tr>
+<tr>
+<td>P8</td>
+<td><strong>知識只在一個人腦中</strong></td>
+<td>泡茶、窗簾、折圖、紅白皮書抽換正本</td>
+<td>請假時無人能代理</td>
+</tr>
+<tr>
+<td>P9</td>
+<td><strong>密碼明文寫在 SOP</strong></td>
+<td>舊系統、電子公文、工商憑證 PIN、快遞帳號都寫在 Word</td>
+<td>資安風險</td>
+</tr>
+<tr>
+<td>P10</td>
+<td><strong>公文追蹤不透明</strong></td>
+<td>要翻 Excel 才知道公文在誰手上</td>
+<td>逾期才發現</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="h2-7"><span class="num">6</span>改善與 AI 導入建議</h2>
+<p><strong>原則</strong>（來自訪談）：
+1. 一次解決一個問題，逐步擴充，不求一次到位。
+2. 系統配合人的習慣，不是人去習慣系統。
+3. 秘書喜歡「消紅點」：所有事變成一張可勾選的待辦清單。</p>
+<h3 id="h3-24">6.1 核心：統一任務入口（LINE 官方帳號 → 待辦清單）</h3>
+<p>把 P1、P2、P3 一次處理掉。所有找秘書的事都進同一個入口，自動變成待辦。</p>
+<div class="diagram"><pre class="mermaid">flowchart LR
+    subgraph IN[&quot;任務來源&quot;]
+      i1[&quot;同事在 LINE 官方帳號&lt;br/&gt;按按鈕提出需求&quot;]
+      i2[&quot;崔sir口頭交辦&lt;br/&gt;秘書手機語音一句話&quot;]
+      i3[&quot;⏰ 排程&lt;br/&gt;每日、每週、每月例行&quot;]
+      i4[&quot;📮 外部到件&lt;br/&gt;信件、電子公文、傳真&quot;]
+    end
+    IN --&gt; AI[&quot;<span class="ai">AI</span> AI 整理&lt;br/&gt;分類、判斷急迫性、&lt;br/&gt;估時間、補齊欄位&quot;]
+    AI --&gt; TODO[&quot;秘書待辦清單&lt;br/&gt;手機行事曆同步&quot;]
+    TODO --&gt; D{&quot;完成?&quot;}
+    D -- 是 --&gt; OK[&quot;勾掉，消紅點&lt;br/&gt;<span class="ai">AI</span> 自動回覆提出人：已完成&quot;]
+    D -- 逾時 --&gt; R[&quot;<span class="ai">AI</span> 提醒秘書&lt;br/&gt;崔sir交辦優先&quot;]
+    R --&gt; TODO
+</pre></div>
+<p><strong>LINE 官方帳號建議選單</strong></p>
+<div class="table"><table>
+<thead>
+<tr>
+<th>按鈕</th>
+<th>填寫欄位</th>
+<th>進待辦後的動作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>叫快遞</td>
+<td>收件方、地址電話、案件編號、時間</td>
+<td><span class="ai">AI</span> 預填快遞單資料；完成後回覆追蹤碼</td>
+</tr>
+<tr>
+<td>寄掛號 / 郵件</td>
+<td>收件方、合約編號</td>
+<td>合併到當天下午跑郵局</td>
+</tr>
+<tr>
+<td>裝訂 / 紅白皮書</td>
+<td>案號、份數、評定單位、交件日</td>
+<td><span class="ai">AI</span> 自動產生 4.3 的正本抽換清單</td>
+</tr>
+<tr>
+<td>借用</td>
+<td>物品、歸還日</td>
+<td>到期前一天 <span class="ai">AI</span> 提醒借用人</td>
+</tr>
+<tr>
+<td>便當改餐</td>
+<td>今天要換成 … / 今天不吃</td>
+<td>寫入當日訂單</td>
+</tr>
+<tr>
+<td>其他交辦</td>
+<td>自由文字</td>
+<td><span class="ai">AI</span> 判斷分類</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="h3-25">6.2 便當訂購（改善後）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;每天 09:00 <span class="ai">AI</span> 自動建立今日訂單&lt;br/&gt;預設沿用上次&quot;]) --&gt; B[&quot;同事要改：LINE 按鈕修改&lt;br/&gt;不改不用動作&quot;]
+    B --&gt; C[&quot;10:15 <span class="ai">AI</span> 截止並彙總&lt;br/&gt;品項、數量、金額&quot;]
+    C --&gt; D[&quot;秘書確認後下訂&lt;br/&gt;或 <span class="ai">AI</span> 直接傳給店家&quot;]
+    D --&gt; E[&quot;<span class="ai">AI</span> 自動記帳，每人累計應付&quot;]
+    E --&gt; F([&quot;週五 <span class="ai">AI</span> 產生收款明細&lt;br/&gt;對零用金&quot;])
+</pre></div>
+<h3 id="h3-26">6.3 下午茶（改善後）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;週一上午 秘書選店&quot;]) --&gt; B[&quot;<span class="ai">AI</span> LINE 推播投票連結&quot;]
+    B --&gt; C{&quot;截止前&lt;br/&gt;週二 15:00&quot;}
+    C -- 未填 --&gt; D[&quot;<span class="ai">AI</span> 自動提醒&lt;br/&gt;間隔可調，例如每 2 小時&lt;br/&gt;截止前 1 小時加強&quot;]
+    D --&gt; C
+    C -- 全部完成 --&gt; F
+    C -- &quot;截止仍未填&quot; --&gt; E{&quot;規則&lt;br/&gt;由主管決定&quot;}
+    E -- &quot;預設：不點&quot; --&gt; F
+    E -- &quot;沿用上次品項&quot; --&gt; F
+    E -- &quot;只通知秘書名單&quot; --&gt; F
+    F[&quot;<span class="ai">AI</span> 自動彙總訂單表&quot;] --&gt; G[&quot;週二 16:30 秘書下訂&quot;]
+    G --&gt; H([&quot;週三送達 <span class="ai">AI</span> 推播取餐通知&quot;])
+</pre></div>
+<blockquote>
+<p>訪談預估：需人工追的人數從每次 3–4 人降到 1 人以下，只剩「已讀不點」的人。逾時規則屬於主管權限，建議先由主管拍板。</p>
+</blockquote>
+<h3 id="h3-27">6.4 公文電子化與追蹤（新系統）</h3>
+<p>依訪談中的四個想法設計：掃描線上分發、本人簽收、不設代理、依類別自動推進。</p>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;紙本或電子公文進來&quot;]) --&gt; B[&quot;掃描&quot;]
+    B --&gt; C[&quot;<span class="ai">AI</span> OCR 讀取&lt;br/&gt;發文機關、文號、日期、主旨&quot;]
+    C --&gt; D[&quot;<span class="ai">AI</span> 比對案件&lt;br/&gt;建議承辦、建議類別&quot;]
+    D --&gt; E[&quot;秘書確認類別&lt;br/&gt;一鍵送出&quot;]
+    E --&gt; F[&quot;系統依類別路由&lt;br/&gt;例：A 簽收 → B 執行 → C 簽核 → D 主管審核&quot;]
+    F --&gt; G[&quot;承辦用工號 + 密碼登入簽收&lt;br/&gt;確保本人&quot;]
+    G --&gt; H{&quot;期限內簽收?&quot;}
+    H -- 否 --&gt; I[&quot;<span class="ai">AI</span> 自動提醒&lt;br/&gt;第 3、7、14 天升級&quot;]
+    I --&gt; J{&quot;請假中?&quot;}
+    J -- 是 --&gt; K[&quot;不轉代理人&lt;br/&gt;銷假後提醒&quot;]
+    J -- 否 --&gt; G
+    H -- 是 --&gt; L[&quot;推進到下一關&quot;]
+    L --&gt; M{&quot;最後一關?&quot;}
+    M -- 否 --&gt; G
+    M -- 是 --&gt; N[&quot;<span class="ai">AI</span> 自動歸檔&lt;br/&gt;檔名、案件、NAS 路徑&quot;]
+    N --&gt; O([&quot;後台總表即時顯示&lt;br/&gt;每件公文在哪一關&quot;])
+</pre></div>
+<p>這張圖同時取代：信件登記表 + Excel 收文表 + 系統登錄 + 紙本簽收 + 週一列印未繳清單 + 週四 email 催繳（解決 P5、P10）。</p>
+<h3 id="h3-28">6.5 會議記錄（週會與外出會議）</h3>
+<div class="diagram"><pre class="mermaid">flowchart TD
+    A([&quot;會議中錄音&quot;]) --&gt; B[&quot;<span class="ai">AI</span> 語音轉逐字稿&quot;]
+    B --&gt; C[&quot;<span class="ai">AI</span> 依五階段格式整理摘要&lt;br/&gt;只產出第一、二階段&quot;]
+    C --&gt; D[&quot;<span class="ai">AI</span> 抽出待辦：誰、做什麼、期限&quot;]
+    D --&gt; E[&quot;秘書校對&quot;]
+    E --&gt; F[&quot;發佈到系統&quot;]
+    F --&gt; G[&quot;<span class="ai">AI</span> 待辦自動進各人清單&quot;]
+    G --&gt; H([&quot;下週週會 <span class="ai">AI</span> 自動產生&lt;br/&gt;上週待辦追蹤表&quot;])
+    X([&quot;外出會議：Google 行事曆&quot;]) --&gt; Y[&quot;<span class="ai">AI</span> 自動建立會議記錄登錄&lt;br/&gt;不用手打 Excel&quot;]
+    Y --&gt; Z[&quot;<span class="ai">AI</span> 會後 7 天、14 天自動催繳&quot;]
+</pre></div>
+<h3 id="h3-29">6.6 定時瑣事：交給設備排程與提醒</h3>
+<div class="table"><table>
+<thead>
+<tr>
+<th>工作</th>
+<th>目前</th>
+<th>建議</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>辦公室燈 09:30 / 12:00 / 13:30</td>
+<td>手動</td>
+<td>智慧開關排程（類似現在飲水機用的 Tapo）</td>
+</tr>
+<tr>
+<td>iPad 音樂</td>
+<td>手動 + 鬧鐘</td>
+<td>捷徑自動化，週一自動跳過</td>
+</tr>
+<tr>
+<td>招牌燈</td>
+<td>每天手動</td>
+<td>智慧插座排程；下班自動關</td>
+</tr>
+<tr>
+<td>崔sir窗簾 11:30 / 16:00</td>
+<td>手動看陽光</td>
+<td>先用 <span class="ai">AI</span> 手機提醒；長期可評估電動窗簾</td>
+</tr>
+<tr>
+<td>飲水機週一開</td>
+<td>手動按 3 秒</td>
+<td>Tapo 加一條週一 08:00 開（需確認按壓式是否支援斷電復電自動開）</td>
+</tr>
+<tr>
+<td>冷氣 26°C 規則</td>
+<td>看溫度表</td>
+<td>溫濕度計 + <span class="ai">AI</span> 超過 26°C 推播</td>
+</tr>
+<tr>
+<td>冰箱清理</td>
+<td>不定時</td>
+<td><span class="ai">AI</span> 每週五推播全體</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="h3-30">6.7 月會報表自動化</h3>
+<div class="diagram"><pre class="mermaid">flowchart LR
+    A[&quot;公文系統&quot;] --&gt; R
+    B[&quot;傳真登錄&quot;] --&gt; R
+    C[&quot;名片系統&quot;] --&gt; R
+    D[&quot;書籍借用&quot;] --&gt; R
+    E[&quot;紅白皮書案件&quot;] --&gt; R
+    R[&quot;<span class="ai">AI</span> 月底自動統計&quot;] --&gt; S[&quot;<span class="ai">AI</span> 套入月會說詞範本&quot;]
+    S --&gt; T([&quot;秘書看過即可報告&quot;])
+</pre></div>
+<h3 id="h3-31">6.8 知識傳承：把一人知識變成 AI 可問的手冊</h3>
+<ul>
+<li>把本文件 + 崔sir辦公室例行 + SOP 放進 AI 知識庫，代理人可直接問：「崔sir的茶怎麼泡？」「性能案紅皮書要幾本？」「基金會的建築圖說要不要蓋章？」</li>
+<li>「崔sir交辦事項」互相代理人（嘉緯哥）也能透過同一個待辦清單看到進度。</li>
+</ul>
+<h3 id="h3-32">6.9 資安</h3>
+<ul>
+<li>SOP 中列出的系統帳密、電子公文帳密、工商憑證 PIN、快遞帳號、門鎖密碼，應<strong>全部移出文件</strong>，改存公司密碼管理工具（例如 Bitwarden 企業版），依角色授權。</li>
+<li>移出後建議更改一次密碼，因為舊文件可能已被複製流傳。</li>
+<li>公文 Excel 的保護密碼與筆電密碼相同，建議分開。</li>
+</ul>
+<hr />
+<h2 id="h2-8"><span class="num">7</span>導入路線圖</h2>
+<p>依「痛的程度 × 容易做」排序，一次一項，做完再加下一項。</p>
+<div class="diagram"><pre class="mermaid">flowchart LR
+    subgraph PH1[&quot;第一階段 1–2 週：先止痛&quot;]
+      a1[&quot;LINE 官方帳號任務入口&quot;]
+      a2[&quot;待辦清單 + 手機行事曆&quot;]
+      a3[&quot;口頭交辦語音轉待辦&quot;]
+      a4[&quot;密碼移出 SOP&quot;]
+    end
+    subgraph PH2[&quot;第二階段 3–4 週：去掉重複催&quot;]
+      b1[&quot;下午茶投票 + 自動催填&quot;]
+      b2[&quot;便當預設沿用 + 改餐按鈕&quot;]
+      b3[&quot;會議記錄 14 天自動催繳&quot;]
+      b4[&quot;定時提醒：窗簾、冰箱&quot;]
+    end
+    subgraph PH3[&quot;第三階段 1–2 個月：公文上線&quot;]
+      c1[&quot;掃描 + OCR + 比對案件&quot;]
+      c2[&quot;本人簽收 + 未簽提醒&quot;]
+      c3[&quot;依類別多關卡流程&quot;]
+      c4[&quot;後台總表&quot;]
+    end
+    subgraph PH4[&quot;第四階段：持續優化&quot;]
+      d1[&quot;月會報表自動化&quot;]
+      d2[&quot;週會錄音轉記錄&quot;]
+      d3[&quot;智慧插座排程&quot;]
+      d4[&quot;AI 知識庫給代理人&quot;]
+    end
+    PH1 --&gt; PH2 --&gt; PH3 --&gt; PH4
+</pre></div>
+<div class="table"><table>
+<thead>
+<tr>
+<th>階段</th>
+<th>項目</th>
+<th>解決痛點</th>
+<th>預估效益</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>統一任務入口</td>
+<td>P1 P2 P3</td>
+<td>不再漏事；被打斷次數大幅下降</td>
+</tr>
+<tr>
+<td>1</td>
+<td>密碼移出</td>
+<td>P9</td>
+<td>降低資安風險</td>
+</tr>
+<tr>
+<td>2</td>
+<td>下午茶 / 便當 / 催繳自動化</td>
+<td>P4</td>
+<td>每週省下人工追人時間</td>
+</tr>
+<tr>
+<td>3</td>
+<td>公文電子流程</td>
+<td>P5 P10</td>
+<td>一筆資料只輸入一次；逾期即時可見</td>
+</tr>
+<tr>
+<td>4</td>
+<td>月報、會議記錄、設備、知識庫</td>
+<td>P6 P7 P8</td>
+<td>月底不再趕報表；可代理</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="h2-9"><span class="num">8</span>AI 跟進任務總表</h2>
+<p>給 AI / 自動化系統設定用。每一列是一條「觸發 → 動作」規則。</p>
+<div class="table"><table>
+<thead>
+<tr>
+<th>類別</th>
+<th>任務</th>
+<th>觸發</th>
+<th>AI / 系統動作</th>
+<th>通知對象與管道</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>每日</td>
+<td>開燈、iPad 音樂</td>
+<td>平日 09:25</td>
+<td>提醒；週一註明「週會不開音樂」</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>崔sir辦公室早上準備</td>
+<td>平日 08:55</td>
+<td>推送檢查清單：倒水、開窗、開燈、窗簾、水壺、行程</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>便當開單</td>
+<td>平日 09:00</td>
+<td>建立訂單，預設沿用上次</td>
+<td>全體 / LINE 官方帳號</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>便當截止</td>
+<td>平日 10:15</td>
+<td>彙總訂單</td>
+<td>秘書 / LINE</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>拉窗簾</td>
+<td>平日 11:30、16:00</td>
+<td>提醒依陽光調整</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>中午關燈</td>
+<td>平日 12:00</td>
+<td>提醒或智慧開關</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>便當送崔sir</td>
+<td>平日 12:00</td>
+<td>提醒：咖啡墊 + A4 紙或 DM</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>午後開燈 + 收便當</td>
+<td>平日 13:30</td>
+<td>提醒</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>收信分發</td>
+<td>平日 13:30</td>
+<td>提醒；登記表改成拍照 <span class="ai">AI</span> 辨識</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>電子公文</td>
+<td>平日 14:00</td>
+<td>提醒登入查收</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>崔sir辦公室打掃</td>
+<td>平日 17:30</td>
+<td>推送打掃清單</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每日</td>
+<td>下班檢查</td>
+<td>平日 17:50</td>
+<td>推送下班檢查清單（3.13）</td>
+<td>秘書 / 手機</td>
+</tr>
+<tr>
+<td>每週一</td>
+<td>週會準備</td>
+<td>08:50</td>
+<td><span class="ai">AI</span> 產生上週待辦追蹤表、公文統計、差勤統計</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每週一</td>
+<td>未繳清單</td>
+<td>09:00</td>
+<td><span class="ai">AI</span> 列出超過 14 天未繳會議記錄、公文</td>
+<td>秘書；週會報告</td>
+</tr>
+<tr>
+<td>每週一</td>
+<td>飲水機</td>
+<td>週會後 10:05</td>
+<td>提醒開 3M 飲水機</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每週一</td>
+<td>下午茶投票</td>
+<td>秘書選店後</td>
+<td>推播投票</td>
+<td>全體 / LINE</td>
+</tr>
+<tr>
+<td>每週二</td>
+<td>下午茶催填</td>
+<td>截止前每 2 小時</td>
+<td>只發給未填者</td>
+<td>未填者 / LINE</td>
+</tr>
+<tr>
+<td>每週二</td>
+<td>下午茶下訂</td>
+<td>16:00</td>
+<td>彙總 + 提醒 16:30 下訂</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每週四</td>
+<td>催繳會議記錄、公文</td>
+<td>09:00</td>
+<td><span class="ai">AI</span> 個別 Email + LINE 給未繳工程師</td>
+<td>工程師</td>
+</tr>
+<tr>
+<td>每週五</td>
+<td>零用金與便當收款</td>
+<td>15:00</td>
+<td><span class="ai">AI</span> 產生收款明細</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每週五</td>
+<td>冰箱清理</td>
+<td>16:00</td>
+<td>提醒全體</td>
+<td>全體 / LINE</td>
+</tr>
+<tr>
+<td>每週五</td>
+<td>飲水機</td>
+<td>長假前</td>
+<td>提醒詢問崔sir是否進公司再關電源</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每月</td>
+<td>崔sir辦公桌保養</td>
+<td>每月第一個週一</td>
+<td>提醒穩潔 → 保護蠟 → 碧麗珠</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每月</td>
+<td>文具盤點</td>
+<td>每月 1 日</td>
+<td>盤點清單 → 林姐簽核</td>
+<td>秘書、林姐</td>
+</tr>
+<tr>
+<td>每月</td>
+<td>名片王匯出</td>
+<td>月底前 3 天</td>
+<td>提醒匯出兩個路徑並輸入系統</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每月</td>
+<td>快遞單據統整</td>
+<td>會計給結帳資料時</td>
+<td><span class="ai">AI</span> 依藍單案件編號分類加總</td>
+<td>秘書、會計</td>
+</tr>
+<tr>
+<td>每月</td>
+<td>月會資料</td>
+<td>月會前 3 天</td>
+<td><span class="ai">AI</span> 統計五項數字並套入說詞</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每月</td>
+<td>書籍逾期</td>
+<td>月會前 3 天</td>
+<td><span class="ai">AI</span> 列出逾期未還並通知借用人</td>
+<td>借用人</td>
+</tr>
+<tr>
+<td>每年</td>
+<td>清潔用品大盤點</td>
+<td>年前大掃除前</td>
+<td>提醒</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每年</td>
+<td>門廳布置</td>
+<td>12 月初、春節前 3 週</td>
+<td>提醒聖誕、春節布置</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>每半年</td>
+<td>紙本公文整理</td>
+<td>2 月、8 月</td>
+<td>提醒整理成冊</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>崔sir交辦</td>
+<td>交辦當下</td>
+<td>語音轉待辦，標最高優先；逾時提醒並通知代理人嘉緯哥</td>
+<td>秘書、代理人</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>客人來訪</td>
+<td>行事曆有訪客</td>
+<td>提前 15 分鐘提醒開招牌燈、長廊燈、電視牆</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>公文未簽收</td>
+<td>送出後 3 / 7 / 14 天</td>
+<td>升級提醒</td>
+<td>承辦 → 主管</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>借用到期</td>
+<td>到期前 1 天</td>
+<td>提醒歸還</td>
+<td>借用人</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>紅白皮書</td>
+<td>收到評定通過公文</td>
+<td><span class="ai">AI</span> 產生該案正本抽換清單與份數分配</td>
+<td>承辦、秘書</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>寄送裝訂廠後</td>
+<td>寄出當天</td>
+<td>提醒打電話確認收件與時程</td>
+<td>秘書</td>
+</tr>
+<tr>
+<td>事件</td>
+<td>新人報到</td>
+<td>人事通知</td>
+<td>推送報到清單：電腦擺設、門鎖、帳號</td>
+<td>秘書、E 組</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="h2-10"><span class="num">9</span>待確認事項</h2>
+<p>整理時發現以下幾處文件與訪談說法不一致，建議和主管確認後統一：</p>
+<ol>
+<li><strong>下午茶時間</strong>：SOP 寫「每週三下午三點訂下午茶」；訪談說「週一投票、週二 16:30 下訂、週三送達」。以訪談為準？</li>
+<li><strong>招牌燈</strong>：工作表列在「每日」；SOP 寫「客人來訪才開」。每天開還是只有客人來才開？</li>
+<li><strong>代理人</strong>：工作表寫崔sir交辦事項「互相為代理人」；訪談希望公文簽收「不設代理人」。建議：公文簽收不代理，崔sir交辦可代理。</li>
+<li><strong>水壺顏色</strong>：一份寫「冬天黑色保溫壺」，另一份寫「白色保溫杯水壺」。</li>
+<li><strong>會議記錄與公文系統</strong>：SOP 註明「新系統修正中，待討論」，目前是 Excel 與系統並行。何時停用 Excel？</li>
+<li><strong>下午茶逾時規則</strong>：超過時間未點，是不點、沿用上次，還是只通知？需主管決定。</li>
+<li><strong>飲水機電源</strong>：目前寫「暫時先不關閉電源」，但 Tapo 已設週五 19:00 關閉，兩者衝突。</li>
+<li><strong>財產清冊</strong>：AB 類由 E 組登記、CD 類由行政登記，分類標準在哪裡？</li>
+</ol></main></div>
