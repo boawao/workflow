@@ -11,6 +11,8 @@ import { liffButton, orderCard, PRIORITY, summaryText, todoCard, todoList } from
 import * as line from "./line.ts";
 import { submitOrder } from "./order.ts";
 
+const LIFF_ID = Deno.env.get("LIFF_ID") ?? "2012305512-yLtyBZVn";
+
 const OWNER_MENU = ["待辦", "便當統計", "下午茶統計", "說明"];
 const MEMBER_MENU = ["便當選項", "下午茶選項", "說明"];
 
@@ -267,7 +269,7 @@ async function finishTodo(replyToken: string, id: number, member: db.Member) {
 // ---------- 訂餐卡片 ----------
 
 async function replyLunchCard(replyToken: string, member: db.Member) {
-  const liffId = Deno.env.get("LIFF_ID");
+  const liffId = LIFF_ID;
   if (liffId) {
     await line.reply(replyToken, [liffButton(liffId, "lunch", "便當選項", "選今天的便當，沒改就照上次。")]);
     return;
@@ -291,7 +293,7 @@ async function replyLunchCard(replyToken: string, member: db.Member) {
 }
 
 async function replyTeaCard(replyToken: string, member: db.Member) {
-  const liffId = Deno.env.get("LIFF_ID");
+  const liffId = LIFF_ID;
   if (liffId) {
     await line.reply(replyToken, [liffButton(liffId, "tea", "下午茶選項", "選本週的下午茶。")]);
     return;

@@ -20,7 +20,7 @@ function json(body: unknown, status = 200) {
 
 async function verifyIdToken(req: Request): Promise<{ userId: string; name: string } | null> {
   const idToken = req.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  const clientId = Deno.env.get("LIFF_CHANNEL_ID");
+  const clientId = Deno.env.get("LIFF_CHANNEL_ID") ?? "2012305512"; // LINE Login channel（LIFF 所在）
   if (!idToken || !clientId) return null;
   const res = await fetch("https://api.line.me/oauth2/v2.1/verify", {
     method: "POST",
