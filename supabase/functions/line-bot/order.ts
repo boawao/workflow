@@ -13,6 +13,9 @@ export async function submitOrder(
   if (kind === "lunch" && key !== db.todayTaipei()) {
     return { ok: false, message: "這張是之前的便當單，請重新開啟今天的選單。" };
   }
+  if (kind === "lunch" && await db.lunchClosed(key)) {
+    return { ok: false, message: "今天的便當已經收單了，要改請直接找行政。" };
+  }
   if (kind === "tea") {
     const round = await db.openTeaRound();
     if (!round || String(round.id) !== key) return { ok: false, message: "這次下午茶已經截止了。" };

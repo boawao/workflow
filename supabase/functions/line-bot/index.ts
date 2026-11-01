@@ -26,6 +26,7 @@ const OWNER_HELP = `【行政專用指令】
 設定便當 雞腿飯 90／排骨飯 85／素食 80
 設定下午茶 店名｜珍奶 60／紅茶拿鐵 55
 　分組各選一項：設定下午茶 店名｜餅：豬肉餡餅 40／蔥油餅 40；飲料：焙烏龍 35
+截止便當／開放便當：今天的便當收單（或重新開放）
 截止下午茶：關閉本週下午茶並給彙總
 催下午茶：提醒還沒點的同事
 
@@ -234,6 +235,19 @@ async function handleOwnerCommand(replyToken: string, text: string, member: db.M
   if (text === "便當統計") {
     const date = db.todayTaipei();
     await line.reply(replyToken, [line.text(summaryText(`${date} 便當`, await db.lunchSummary(date)), OWNER_MENU)]);
+    return true;
+  }
+
+  if (text === "截止便當" || text === "開放便當") {
+    const date = db.todayTaipei();
+    const closing = text === "截止便當";
+    await db.setLunchClosed(date, closing);
+    await line.reply(replyToken, [line.text(
+      closing
+        ? summaryText(`${date} 便當（已收單）`, await db.lunchSummary(date))
+        : `${date} 便當已重新開放，同事可以再點或修改。`,
+      OWNER_MENU,
+    )]);
     return true;
   }
 

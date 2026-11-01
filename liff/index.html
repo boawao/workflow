@@ -169,7 +169,10 @@ function render() {
   const sec = data && data[tab];
   let current = null;
 
-  if (!sec || (tab === "lunch" && !sec.items.length)) {
+  if (tab === "lunch" && sec && sec.closed) {
+    current = sec.current;
+    main.innerHTML = `<div class="empty">今天的便當已經收單了${sec.current ? `，你點的是「${esc(sec.current)}」` : ""}。<br>要修改請直接找行政。</div>`;
+  } else if (!sec || (tab === "lunch" && !sec.items.length)) {
     main.innerHTML = `<div class="empty">${tab === "lunch" ? "行政還沒設定今天的便當選項。" : "本週下午茶還沒開放，或已經截止。"}</div>`;
   } else if (tab === "lunch") {
     current = sec.current;

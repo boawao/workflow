@@ -147,6 +147,15 @@ export async function setPriority(id: number, priority: Priority): Promise<Todo 
 
 // ---------- 菜單與訂單 ----------
 
+export async function lunchClosed(date: string): Promise<boolean> {
+  return !!check(await db.from("lunch_closures").select("order_date").eq("order_date", date).maybeSingle());
+}
+
+export async function setLunchClosed(date: string, closed: boolean): Promise<void> {
+  if (closed) check(await db.from("lunch_closures").upsert({ order_date: date }));
+  else check(await db.from("lunch_closures").delete().eq("order_date", date));
+}
+
 export async function lunchItems(): Promise<MenuItem[]> {
   return check(
     await db.from("menu_items").select("*").eq("kind", "lunch").eq("active", true).order("sort"),

@@ -159,7 +159,8 @@ function render() {
         </div>`).join("")}</section>`;
     }).join("");
   } else if (tab === "lunch") {
-    main.innerHTML = `<section><h2>${esc(data.lunch.date)} 便當<span class="count">沒選的人照上次訂</span></h2></section>`
+    const c = data.lunch.closed;
+    main.innerHTML = `<section><h2>${esc(data.lunch.date)} 便當 <span class="tag ${c ? "" : "open"}">${c ? "已收單" : "開放中"}</span><span class="count">沒選的人照上次訂</span></h2></section>`
       + orderBlock(data.lunch.lines, "今天還沒有人點");
   } else {
     const t = data.tea;
