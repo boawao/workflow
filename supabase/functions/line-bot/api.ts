@@ -46,7 +46,7 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
       db.lunchItems(),
       db.myOrder("lunch", date, member.user_id),
       round ? db.teaItems(round.id) : Promise.resolve([]),
-      round ? db.myOrder("tea", String(round.id), member.user_id) : Promise.resolve(null),
+      round ? db.myTeaOrders(round.id, member.user_id) : Promise.resolve({}),
     ]);
     return json({
       name: member.name,
@@ -60,8 +60,8 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
         ? {
           key: String(round.id),
           store: round.store,
-          items: teaItems.map(({ id, name, price }) => ({ id, name, price })),
-          current: teaMine?.item_name ?? null,
+          items: teaItems.map(({ id, name, price, grp }) => ({ id, name, price, grp })),
+          current: teaMine,
         }
         : null,
     });

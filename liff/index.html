@@ -78,6 +78,8 @@ main {
 .opt.same[aria-checked="true"] .dot { background: radial-gradient(var(--teal-soft) 45%, var(--navy) 50%); }
 .opt.skip { background: transparent; border-style: dashed; color: var(--muted); }
 .opt:focus-visible { outline: 2px solid var(--teal); outline-offset: 2px; }
+.grp { margin: 14px 0 2px; font-size: 13px; font-weight: 700; color: var(--teal); letter-spacing: .04em; }
+.grp:first-child { margin-top: 0; }
 .empty { padding: 28px 8px; text-align: center; color: var(--muted); font-size: 14px; }
 
 footer {
@@ -94,6 +96,7 @@ footer {
 .submit:disabled { background: #b9cdd1; cursor: default; }
 .submit:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 .toast {
+  white-space: pre-line;
   position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 76px); transform: translateX(-50%);
   background: var(--navy-deep); color: #fff; font-size: 14px; padding: 10px 16px; border-radius: 999px;
   max-width: calc(100% - 32px); text-align: center; box-shadow: 0 6px 18px rgba(10, 31, 51, .25);
@@ -128,7 +131,8 @@ const API = "https://onzqllxxfzwaghbewphi.supabase.co/functions/v1/line-bot/api"
 
 let data = null;
 let tab = new URLSearchParams(location.search).get("tab") === "tea" ? "tea" : "lunch";
-let picked = null; // { item: id } | "same" | "skip"
+let picked = null; // 便當：{ item: id } | "same" | "skip"
+let pickedTea = {}; // 下午茶：{ 分組: { item: id } }，或 { "": "skip" }
 let idToken = "";
 
 const $ = (id) => document.getElementById(id);
@@ -153,8 +157,8 @@ async function api(path, init = {}) {
   return body;
 }
 
-function option({ cls = "", name, price, checked, choice }) {
-  return `<button class="opt ${cls}" role="radio" aria-checked="${checked}" data-choice='${JSON.stringify(choice)}'>
+function option({ cls = "", name, price, checked, choice, grp = "" }) {
+  return `<button class="opt ${cls}" role="radio" aria-checked="${checked}" data-grp="${esc(grp)}" data-choice='${JSON.stringify(choice)}'>
     <span class="dot"></span><span class="name">${esc(name)}</span>${price != null ? `<span class="price">$${price}</span>` : ""}
   </button>`;
 }
@@ -167,25 +171,43 @@ function render() {
 
   if (!sec || (tab === "lunch" && !sec.items.length)) {
     main.innerHTML = `<div class="empty">${tab === "lunch" ? "行政還沒設定今天的便當選項。" : "本週下午茶還沒開放，或已經截止。"}</div>`;
-  } else {
+  } else if (tab === "lunch") {
     current = sec.current;
     const isPicked = (c) => JSON.stringify(c) === JSON.stringify(picked);
     const rows = [];
-    if (tab === "lunch" && sec.last && !sec.current) {
+    if (sec.last && !sec.current) {
       rows.push(option({ cls: "same", name: `照舊：${sec.last}`, price: null, checked: isPicked("same"), choice: "same" }));
     }
     for (const it of sec.items) {
       const choice = { item: it.id };
-      const checked = picked ? isPicked(choice) : sec.current === it.name;
-      rows.push(option({ name: it.name, price: it.price, checked, choice }));
+      rows.push(option({ name: it.name, price: it.price, checked: picked ? isPicked(choice) : sec.current === it.name, choice }));
     }
-    rows.push(option({ cls: "skip", name: tab === "lunch" ? "今天不訂" : "這次不點", price: null, checked: picked ? isPicked("skip") : sec.current === "不訂", choice: "skip" }));
-    main.innerHTML = `<div class="meta"><h2>${tab === "lunch" ? `${esc(sec.key)} 便當` : esc(sec.store)}</h2>
-      <span>${tab === "lunch" ? "10:15 前選好，沒選照上次" : "可以再改選"}</span></div>
+    rows.push(option({ cls: "skip", name: "今天不訂", price: null, checked: picked ? isPicked("skip") : sec.current === "不訂", choice: "skip" }));
+    main.innerHTML = `<div class="meta"><h2>${esc(sec.key)} 便當</h2><span>10:15 前選好，沒選照上次</span></div>
       <div class="list" role="radiogroup">${rows.join("")}</div>`;
+  } else {
+    // 下午茶：依分組（例如 餅／飲料）各選一項
+    const cur = sec.current || {};
+    current = Object.values(cur).join("、") || null;
+    const touched = Object.keys(pickedTea).length > 0;
+    const skipPicked = pickedTea[""] === "skip";
+    const groups = [...new Set(sec.items.map((it) => it.grp))];
+    const blocks = groups.map((g) => {
+      const rows = sec.items.filter((it) => it.grp === g).map((it) => {
+        const choice = { item: it.id };
+        const checked = touched
+          ? !skipPicked && (JSON.stringify(pickedTea[g]) === JSON.stringify(choice) || (!pickedTea[g] && cur[g] === it.name))
+          : cur[g] === it.name;
+        return option({ name: it.name, price: it.price, checked, choice, grp: g });
+      });
+      return `${g ? `<div class="grp">${esc(g)}・選一項</div>` : ""}<div class="list" role="radiogroup">${rows.join("")}</div>`;
+    });
+    const skip = option({ cls: "skip", name: "這次不點", price: null, checked: touched ? skipPicked : cur[""] === "不訂", choice: "skip" });
+    main.innerHTML = `<div class="meta"><h2>${esc(sec.store)}</h2><span>${groups.length > 1 ? "每組各選一項" : "可以再改選"}</span></div>
+      ${blocks.join("")}<div class="list" style="margin-top:14px">${skip}</div>`;
   }
   $("status").innerHTML = current ? `目前：<b>${esc(current)}</b>` : (sec ? "尚未選擇" : "");
-  $("submit").disabled = !picked;
+  $("submit").disabled = tab === "lunch" ? !picked : !Object.keys(pickedTea).length;
 }
 
 document.querySelector(".tabs").addEventListener("click", (e) => {
@@ -193,29 +215,44 @@ document.querySelector(".tabs").addEventListener("click", (e) => {
   if (!b || b.dataset.tab === tab) return;
   tab = b.dataset.tab;
   picked = null;
+  pickedTea = {};
   render();
 });
 
 $("main").addEventListener("click", (e) => {
   const b = e.target.closest(".opt");
   if (!b) return;
-  picked = JSON.parse(b.dataset.choice);
+  const choice = JSON.parse(b.dataset.choice);
+  if (tab === "lunch") picked = choice;
+  else if (choice === "skip") pickedTea = { "": "skip" };
+  else {
+    delete pickedTea[""];
+    pickedTea[b.dataset.grp] = choice;
+  }
   render();
 });
 
 $("submit").addEventListener("click", async () => {
-  if (!picked) return;
+  const choices = tab === "lunch" ? (picked ? [picked] : []) : Object.values(pickedTea);
+  if (!choices.length) return;
   $("submit").disabled = true;
+  const messages = [];
+  let failed = false;
   try {
-    const r = await api("order", { method: "POST", body: JSON.stringify({ kind: tab, choice: picked }) });
-    toast(r.message, !r.ok);
-    if (r.ok) {
-      data[tab].current = r.item;
-      picked = null;
+    for (const choice of choices) {
+      const r = await api("order", { method: "POST", body: JSON.stringify({ kind: tab, choice }) });
+      messages.push(r.message);
+      if (!r.ok) { failed = true; break; }
     }
+    // 重新讀取，顯示伺服器上的最新選擇
+    data = await api("menu");
+    picked = null;
+    pickedTea = {};
   } catch (err) {
-    toast(err.message, true);
+    messages.push(err.message);
+    failed = true;
   }
+  toast(messages.join("\n"), failed);
   render();
 });
 

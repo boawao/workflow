@@ -20,6 +20,7 @@ export async function submitOrder(
 
   let itemName: string;
   let price: number | null = null;
+  let grp = "";
   if (choice === "skip") {
     itemName = "不訂";
   } else if (choice === "same") {
@@ -33,15 +34,16 @@ export async function submitOrder(
     if (!item || !valid) return { ok: false, message: "找不到這個品項，請重新開啟選單。" };
     itemName = item.name;
     price = item.price;
+    grp = item.grp;
   }
 
-  await db.placeOrder({ kind, order_key: key, user_id: member.user_id, item_name: itemName, price });
+  await db.placeOrder({ kind, order_key: key, user_id: member.user_id, item_name: itemName, price, grp });
   const label = kind === "lunch" ? "便當" : "下午茶";
   return {
     ok: true,
     item: itemName,
     message: itemName === "不訂"
       ? `好的，這次${label}不幫你訂。`
-      : `已登記${label}：${itemName}${price != null ? ` $${price}` : ""}`,
+      : `已登記${label}${grp ? `（${grp}）` : ""}：${itemName}${price != null ? ` $${price}` : ""}`,
   };
 }

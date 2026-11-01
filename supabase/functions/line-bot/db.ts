@@ -36,7 +36,10 @@ export interface MenuItem {
   round_id: number | null;
   name: string;
   price: number | null;
+  grp: string; // 下午茶分組，例如「餅」「飲料」；沒分組是空字串
 }
+
+export type NewItem = { name: string; price: number | null; grp?: string };
 
 function check<T>(r: { data: T; error: unknown }): T {
   if (r.error) throw r.error;
@@ -150,7 +153,7 @@ export async function lunchItems(): Promise<MenuItem[]> {
   ) as MenuItem[];
 }
 
-export async function replaceLunchItems(items: { name: string; price: number | null }[]) {
+export async function replaceLunchItems(items: NewItem[]) {
   check(await db.from("menu_items").update({ active: false }).eq("kind", "lunch").eq("active", true));
   check(await db.from("menu_items").insert(
     items.map((it, i) => ({ kind: "lunch", name: it.name, price: it.price, sort: i })),
@@ -170,11 +173,11 @@ export async function latestTeaRound(): Promise<{ id: number; store: string; is_
   );
 }
 
-export async function startTeaRound(store: string, items: { name: string; price: number | null }[]) {
+export async function startTeaRound(store: string, items: NewItem[]) {
   check(await db.from("tea_rounds").update({ is_open: false }).eq("is_open", true));
   const round = check(await db.from("tea_rounds").insert({ store }).select().single());
   check(await db.from("menu_items").insert(
-    items.map((it, i) => ({ kind: "tea", round_id: round.id, name: it.name, price: it.price, sort: i })),
+    items.map((it, i) => ({ kind: "tea", round_id: round.id, name: it.name, price: it.price, grp: it.grp ?? "", sort: i })),
   ));
   return round as { id: number; store: string };
 }
@@ -199,8 +202,14 @@ export async function placeOrder(o: {
   user_id: string;
   item_name: string;
   price: number | null;
+  grp?: string;
 }): Promise<void> {
-  check(await db.from("orders").upsert(o, { onConflict: "kind,order_key,user_id" }));
+  const row = { ...o, grp: o.grp ?? "" };
+  const mine = () => db.from("orders").delete().eq("kind", o.kind).eq("order_key", o.order_key).eq("user_id", o.user_id);
+  // 下午茶「這次不點」取代所有分組的選擇；選了品項就拿掉「不訂」
+  if (o.kind === "tea" && o.item_name === "不訂") check(await mine());
+  else if (o.kind === "tea") check(await mine().eq("item_name", "不訂"));
+  check(await db.from("orders").upsert(row, { onConflict: "kind,order_key,user_id,grp" }));
   if (o.kind === "lunch" && o.item_name !== "不訂") {
     check(await db.from("members").update({ lunch_default: o.item_name }).eq("user_id", o.user_id));
   }
@@ -211,6 +220,14 @@ export async function myOrder(kind: "lunch" | "tea", orderKey: string, userId: s
     await db.from("orders").select("*").eq("kind", kind).eq("order_key", orderKey)
       .eq("user_id", userId).maybeSingle(),
   ) as { item_name: string; price: number | null } | null;
+}
+
+// 我這次下午茶各組的選擇：{ 餅: "豬肉餡餅", 飲料: "…" }；選了不點則是 { "": "不訂" }
+export async function myTeaOrders(roundId: number, userId: string): Promise<Record<string, string>> {
+  const rows = check(
+    await db.from("orders").select("grp,item_name").eq("kind", "tea").eq("order_key", String(roundId)).eq("user_id", userId),
+  ) as { grp: string; item_name: string }[];
+  return Object.fromEntries(rows.map((r) => [r.grp, r.item_name]));
 }
 
 export interface SummaryLine {
@@ -241,9 +258,11 @@ export async function lunchSummary(date: string): Promise<SummaryLine[]> {
   return lines;
 }
 
+// 下午茶：每份品項一行（同一人點餅＋飲料就是兩行）
 export async function teaSummary(roundId: number): Promise<SummaryLine[]> {
   const orders = check(
-    await db.from("orders").select("user_id,item_name,price").eq("kind", "tea").eq("order_key", String(roundId)),
+    await db.from("orders").select("user_id,item_name,price,grp").eq("kind", "tea").eq("order_key", String(roundId))
+      .order("grp"),
   ) as { user_id: string; item_name: string; price: number | null }[];
   const members = check(await db.from("members").select("user_id,name")) as Member[];
   const nameOf = new Map(members.map((m) => [m.user_id, m.name]));

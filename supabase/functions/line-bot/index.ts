@@ -25,6 +25,7 @@ const OWNER_HELP = `【行政專用指令】
 便當統計／下午茶統計：看點餐彙總
 設定便當 雞腿飯 90／排骨飯 85／素食 80
 設定下午茶 店名｜珍奶 60／紅茶拿鐵 55
+　分組各選一項：設定下午茶 店名｜餅：豬肉餡餅 40／蔥油餅 40；飲料：焙烏龍 35
 截止下午茶：關閉本週下午茶並給彙總
 催下午茶：提醒還沒點的同事
 
@@ -274,10 +275,10 @@ async function handleOwnerCommand(replyToken: string, text: string, member: db.M
 
   const setTea = text.match(/^設定下午茶\s+(.+?)\s*[｜|]\s*(.+)$/s);
   if (setTea) {
-    const items = parseItems(setTea[2]);
+    const items = parseGroups(setTea[2]);
     const round = await db.startTeaRound(setTea[1], items);
     await line.reply(replyToken, [
-      line.text(`下午茶已開放：${round.store}\n${items.map((i) => `・${i.name}${i.price != null ? ` $${i.price}` : ""}`).join("\n")}\n\n同事按「下午茶選項」就能選。可用「催下午茶」提醒還沒點的人。`, OWNER_MENU),
+      line.text(`下午茶已開放：${round.store}\n${items.map((i) => `・${i.grp ? `［${i.grp}］` : ""}${i.name}${i.price != null ? ` $${i.price}` : ""}`).join("\n")}\n\n同事按「下午茶選項」就能選。可用「催下午茶」提醒還沒點的人。`, OWNER_MENU),
     ]);
     return true;
   }
@@ -285,8 +286,16 @@ async function handleOwnerCommand(replyToken: string, text: string, member: db.M
   return false;
 }
 
+// 「餅：豬肉餡餅 40／蔥油餅 40；飲料：焙烏龍 35」→ 每項帶分組；沒寫「名稱：」就不分組
+function parseGroups(s: string): db.NewItem[] {
+  return s.split(/[；;\n]+/).map((x) => x.trim()).filter(Boolean).flatMap((part) => {
+    const g = part.match(/^([^：:／/、,，]{1,6})[：:]\s*(.+)$/s);
+    return g ? parseItems(g[2]).map((it) => ({ ...it, grp: g[1].trim() })) : parseItems(part);
+  });
+}
+
 // 「雞腿飯 90／排骨飯 85、素食」→ [{name, price}]
-function parseItems(s: string): { name: string; price: number | null }[] {
+function parseItems(s: string): db.NewItem[] {
   return s.split(/[／/、,，\n]+/).map((x) => x.trim()).filter(Boolean).map((x) => {
     const m = x.match(/^(.*?)\s*\$?(\d+)\s*元?$/);
     return m && m[1] ? { name: m[1].trim(), price: Number(m[2]) } : { name: x, price: null };
@@ -343,14 +352,14 @@ async function replyTeaCard(replyToken: string, member: db.Member) {
     await line.reply(replyToken, [line.text("本週下午茶還沒開放，或已經截止了。")]);
     return;
   }
-  const mine = await db.myOrder("tea", String(round.id), member.user_id);
+  const mine = Object.values(await db.myTeaOrders(round.id, member.user_id)).join("、");
   await line.reply(replyToken, [orderCard({
     kind: "tea",
     title: `下午茶：${round.store}`,
     subtitle: "選好後可以再按一次改選。",
     items: await db.teaItems(round.id),
     orderKey: String(round.id),
-    current: mine?.item_name ?? null,
+    current: mine || null,
   })]);
 }
 
