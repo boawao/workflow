@@ -34,7 +34,7 @@ const OWNER_HELP = `【行政專用指令】
 週一到週五 8、11、15 點會推播未完成待辦。`;
 
 const MEMBER_HELP = `【可以這樣用】
-便當選項：選今天的便當，沒改就照上次
+便當選項：選今天的便當（沒選就不訂）
 下午茶選項：選本週下午茶
 有事要找行政：直接打字說明，例如
 「明天上午幫我叫快遞寄報告書到建築師事務所」
@@ -334,7 +334,7 @@ async function finishTodo(replyToken: string, id: number, member: db.Member) {
 async function replyLunchCard(replyToken: string, member: db.Member) {
   const liffId = LIFF_ID;
   if (liffId) {
-    await line.reply(replyToken, [liffButton(liffId, "lunch", "便當選項", "選今天的便當，沒改就照上次。")]);
+    await line.reply(replyToken, [liffButton(liffId, "lunch", "便當選項", "選今天的便當，沒選就不幫你訂。")]);
     return;
   }
   const items = await db.lunchItems();
@@ -347,7 +347,7 @@ async function replyLunchCard(replyToken: string, member: db.Member) {
   await line.reply(replyToken, [orderCard({
     kind: "lunch",
     title: `${date} 便當`,
-    subtitle: "請在 10:15 前選好。沒有選的話，會照你上次點的品項訂。",
+    subtitle: "請在 10:15 前選好，沒選就不幫你訂。",
     items,
     orderKey: date,
     current: mine?.item_name ?? null,

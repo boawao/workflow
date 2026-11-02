@@ -246,25 +246,16 @@ export interface SummaryLine {
   carried: boolean; // 沒點，沿用上次
 }
 
-// 便當：今天有點的照點的；沒點但有「上次的品項」的沿用；選「不訂」的排除
+// 便當：只算今天有選的人；沒選或選「不訂」的都不訂
 export async function lunchSummary(date: string): Promise<SummaryLine[]> {
   const orders = check(
     await db.from("orders").select("user_id,item_name,price").eq("kind", "lunch").eq("order_key", date),
   ) as { user_id: string; item_name: string; price: number | null }[];
-  const members = check(await db.from("members").select("*")) as Member[];
-  const items = await lunchItems();
-  const priceOf = (n: string) => items.find((i) => i.name === n)?.price ?? null;
-  const byUser = new Map(orders.map((o) => [o.user_id, o]));
-  const lines: SummaryLine[] = [];
-  for (const m of members) {
-    const o = byUser.get(m.user_id);
-    if (o) {
-      if (o.item_name !== "不訂") lines.push({ name: m.name, item: o.item_name, price: o.price, carried: false });
-    } else if (m.lunch_default) {
-      lines.push({ name: m.name, item: m.lunch_default, price: priceOf(m.lunch_default), carried: true });
-    }
-  }
-  return lines;
+  const members = check(await db.from("members").select("user_id,name")) as Member[];
+  const nameOf = new Map(members.map((m) => [m.user_id, m.name]));
+  return orders
+    .filter((o) => o.item_name !== "不訂")
+    .map((o) => ({ name: nameOf.get(o.user_id) ?? "", item: o.item_name, price: o.price, carried: false }));
 }
 
 // 下午茶：每份品項一行（同一人點餅＋飲料就是兩行）

@@ -186,7 +186,7 @@ function render() {
       rows.push(option({ name: it.name, price: it.price, checked: picked ? isPicked(choice) : sec.current === it.name, choice }));
     }
     rows.push(option({ cls: "skip", name: "今天不訂", price: null, checked: picked ? isPicked("skip") : sec.current === "不訂", choice: "skip" }));
-    main.innerHTML = `<div class="meta"><h2>${esc(sec.key)} 便當</h2><span>10:15 前選好，沒選照上次</span></div>
+    main.innerHTML = `<div class="meta"><h2>${esc(sec.key)} 便當</h2><span>10:15 前選好，沒選就不訂</span></div>
       <div class="list" role="radiogroup">${rows.join("")}</div>`;
   } else {
     // 下午茶：依分組（例如 餅／飲料）各選一項
