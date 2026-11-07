@@ -266,7 +266,7 @@ export async function addSupplyRequest(r: {
 // 最近的領用紀錄（含領用人與待辦是否完成），新的在前
 export async function recentSupplyRequests(days = 31) {
   const rows = check(
-    await db.from("supply_requests").select("id,items,note,created_at,members(name),todos(status)")
+    await db.from("supply_requests").select("id,items,note,created_at,todo_id,members(name),todos(status)")
       .gte("created_at", new Date(Date.now() - days * 86400_000).toISOString())
       .order("created_at", { ascending: false }),
   ) as {
@@ -274,6 +274,7 @@ export async function recentSupplyRequests(days = 31) {
     items: { name: string; unit: string; qty: number }[];
     note: string;
     created_at: string;
+    todo_id: number | null;
     members: { name: string } | null;
     todos: { status: string } | null;
   }[];
@@ -283,6 +284,7 @@ export async function recentSupplyRequests(days = 31) {
     items: r.items,
     note: r.note,
     created_at: r.created_at,
+    todo_id: r.todo_id,
     done: r.todos?.status === "done",
   }));
 }

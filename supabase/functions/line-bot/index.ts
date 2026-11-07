@@ -9,6 +9,7 @@ import { handleApi } from "./api.ts";
 import * as db from "./db.ts";
 import { adminButton, liffButton, orderCard, summaryText, todoCard, todoList } from "./flex.ts";
 import * as line from "./line.ts";
+import { finishAndNotify } from "./done.ts";
 import { submitOrder } from "./order.ts";
 
 const LIFF_ID = Deno.env.get("LIFF_ID") ?? "2012305512-yLtyBZVn";
@@ -335,19 +336,13 @@ function parseItems(s: string): db.NewItem[] {
 }
 
 async function finishTodo(replyToken: string, id: number, member: db.Member) {
-  const todo = await db.completeTodo(id);
+  const todo = await finishAndNotify(id, member.user_id);
   if (!todo) {
     await line.reply(replyToken, [line.text(`#${id} 不存在或已經完成。`, OWNER_MENU)]);
     return;
   }
   const remaining = (await db.openTodos()).length;
   await line.reply(replyToken, [line.text(`✅ 已完成 #${id}「${todo.title}」\n剩下 ${remaining} 件待辦。`, OWNER_MENU)]);
-  if (todo.requester_id && todo.requester_id !== member.user_id) {
-    const notice = todo.title.startsWith("消耗品領用")
-      ? `你領用的消耗品已經準備好了，請到行政處拿取：\n${todo.detail}`
-      : `行政已處理完成：「${todo.title}」`;
-    await line.push(todo.requester_id, [line.text(notice)]);
-  }
 }
 
 // ---------- 訂餐卡片 ----------

@@ -81,6 +81,12 @@ h2 .count { color: var(--muted); font-weight: 400; font-size: 13px; }
 .row .carried { color: var(--muted); font-size: 12px; }
 .total { display: flex; justify-content: space-between; font-weight: 700; font-size: 15px; }
 .total span:last-child { font-variant-numeric: tabular-nums; color: var(--teal); }
+.done-btn {
+  appearance: none; border: 0; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700;
+  background: var(--teal); color: #fff; border-radius: 8px; padding: 6px 14px; justify-self: start; margin-top: 4px;
+}
+.done-btn:disabled { background: #b9cdd1; cursor: default; }
+.done-btn:focus-visible { outline: 2px solid var(--navy); outline-offset: 2px; }
 .empty { text-align: center; color: var(--muted); font-size: 14px; padding: 24px 8px; }
 .tag { font-size: 12px; border-radius: 999px; padding: 1px 8px; background: var(--mist); color: var(--muted); font-weight: 400; }
 .tag.open { background: #dff3f0; color: #146e63; }
@@ -157,6 +163,7 @@ function render() {
           <div class="meta"><span>#${t.id}</span>${t.requester_name ? `<span>${esc(t.requester_name)}</span>` : ""}
             ${t.due ? `<span>期限 ${esc(t.due)}</span>` : ""}${t.awaiting_due ? '<span class="badge">等對方回覆期限</span>' : ""}
             <span>${time(t.created_at)}</span></div>
+          <button class="done-btn" data-done="${t.id}">完成</button>
         </div>`).join("")}</section>`;
     }).join("");
   } else if (tab === "supply") {
@@ -185,6 +192,7 @@ function render() {
           <div class="detail">${r.items.map((it) => `${esc(it.name)} × ${it.qty}${esc(it.unit)}`).join("、")}</div>
           ${r.note ? `<div class="detail">備註：${esc(r.note)}</div>` : ""}
           <div class="meta"><span>${time(r.created_at)}</span></div>
+          ${!r.done && r.todo_id ? `<button class="done-btn" data-done="${r.todo_id}">準備好了，通知 ${esc(r.name || "同事")}</button>` : ""}
         </div>`).join("")}</section>`;
   } else if (tab === "lunch") {
     const c = data.lunch.closed;
@@ -219,6 +227,26 @@ document.querySelector(".tabs").addEventListener("click", (e) => {
   if (b) { tab = b.dataset.tab; render(); }
 });
 $("refresh").addEventListener("click", load);
+
+// 按「完成」：標成完成並通知提出的同事，再重新讀取
+$("main").addEventListener("click", async (e) => {
+  const b = e.target.closest("[data-done]");
+  if (!b) return;
+  b.disabled = true;
+  b.textContent = "處理中…";
+  try {
+    const res = await fetch(`${API}/done`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${idToken}` },
+      body: JSON.stringify({ id: Number(b.dataset.done) }),
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.message || body.error || "操作失敗，請稍後再試。");
+  } catch (err) {
+    alert(err.message);
+  }
+  load();
+});
 
 (async () => {
   try {

@@ -8,6 +8,7 @@
 import * as db from "./db.ts";
 import { todoCard } from "./flex.ts";
 import * as line from "./line.ts";
+import { finishAndNotify } from "./done.ts";
 import { type Choice, submitOrder } from "./order.ts";
 
 const CORS = {
@@ -122,11 +123,22 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
       note,
       todo_id: todo.id,
     });
+    // 一律推播給行政（就算是行政自己送的），卡片上有「完成」按鈕
     const owner = await db.getOwner();
-    if (owner && owner.user_id !== member.user_id) {
-      await line.push(owner.user_id, [todoCard(todo, `${member.name} 的消耗品領用`)]);
-    }
+    if (owner) await line.push(owner.user_id, [todoCard(todo, `${member.name} 的消耗品領用`)]);
     return json({ ok: true, message: `已送出：${list}\n行政準備好後會通知你。` });
+  }
+
+  // 管理後台按「完成」：只有行政主帳號可以
+  if (path === "done" && req.method === "POST") {
+    if (!member.is_owner) return json({ ok: false, message: "只有行政主帳號可以完成待辦。" }, 403);
+    const body = await req.json().catch(() => null);
+    const id = Number(body?.id);
+    if (!Number.isInteger(id)) return json({ ok: false, message: "待辦編號錯誤。" }, 400);
+    const todo = await finishAndNotify(id, member.user_id);
+    return todo
+      ? json({ ok: true, message: `已完成 #${id}「${todo.title}」` })
+      : json({ ok: false, message: `#${id} 不存在或已經完成。` }, 409);
   }
 
   if (path === "order" && req.method === "POST") {
