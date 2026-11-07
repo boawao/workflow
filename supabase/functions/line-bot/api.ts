@@ -6,6 +6,8 @@
 // 驗證：LIFF 的 ID token 放在 Authorization: Bearer，向 LINE 驗證後取得 userId
 
 import * as db from "./db.ts";
+import { todoCard } from "./flex.ts";
+import * as line from "./line.ts";
 import { type Choice, submitOrder } from "./order.ts";
 
 const CORS = {
@@ -42,7 +44,8 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
   if (path === "menu" && req.method === "GET") {
     const date = db.todayTaipei();
     const round = await db.openTeaRound();
-    const [lunchClosed, lunchItems, lunchMine, teaItems, teaMine] = await Promise.all([
+    const [supply, lunchClosed, lunchItems, lunchMine, teaItems, teaMine] = await Promise.all([
+      db.supplyItems(),
       db.lunchClosed(date),
       db.lunchItems(),
       db.myOrder("lunch", date, member.user_id),
@@ -51,6 +54,7 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
     ]);
     return json({
       name: member.name,
+      supply,
       lunch: {
         key: date,
         items: lunchItems.map(({ id, name, price }) => ({ id, name, price })),
@@ -90,6 +94,37 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
         ? { store: round.store, is_open: round.is_open, lines: tea, missing: teaMissing.map((m) => m.name) }
         : null,
     });
+  }
+
+  // 消耗品領用：建立行政待辦並推播給行政
+  if (path === "supply" && req.method === "POST") {
+    const body = await req.json().catch(() => null);
+    const catalog = new Map((await db.supplyItems()).map((it) => [it.id, it]));
+    const picked = (Array.isArray(body?.items) ? body.items : [])
+      .filter((x: { id: number; qty: number }) => catalog.has(x?.id) && Number.isInteger(x?.qty) && x.qty > 0 && x.qty <= 20)
+      .map((x: { id: number; qty: number }) => ({ ...catalog.get(x.id)!, qty: x.qty }));
+    if (!picked.length) return json({ ok: false, message: "請至少選一項消耗品。" }, 400);
+    const note = String(body?.note ?? "").trim().slice(0, 200);
+    const list = picked.map((p: { name: string; unit: string; qty: number }) => `${p.name}×${p.qty}${p.unit}`).join("、");
+    const todo = await db.createTodo({
+      title: `消耗品領用：${member.name}`,
+      detail: list + (note ? `\n備註：${note}` : ""),
+      priority: "other",
+      due: null,
+      requester: member,
+      source_text: list,
+    });
+    await db.addSupplyRequest({
+      user_id: member.user_id,
+      items: picked.map(({ name, unit, qty }: { name: string; unit: string; qty: number }) => ({ name, unit, qty })),
+      note,
+      todo_id: todo.id,
+    });
+    const owner = await db.getOwner();
+    if (owner && owner.user_id !== member.user_id) {
+      await line.push(owner.user_id, [todoCard(todo, `${member.name} 的消耗品領用`)]);
+    }
+    return json({ ok: true, message: `已送出：${list}\n行政準備好後會通知你。` });
   }
 
   if (path === "order" && req.method === "POST") {

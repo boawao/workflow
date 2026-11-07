@@ -14,7 +14,7 @@ import { submitOrder } from "./order.ts";
 const LIFF_ID = Deno.env.get("LIFF_ID") ?? "2012305512-yLtyBZVn";
 
 const OWNER_MENU = ["待辦", "管理後台", "便當統計", "下午茶統計", "說明"];
-const MEMBER_MENU = ["便當選項", "下午茶選項", "說明"];
+const MEMBER_MENU = ["便當選項", "下午茶選項", "消耗品領用", "說明"];
 
 const OWNER_HELP = `【行政專用指令】
 待辦：看所有未完成待辦（依 緊急／重要／其他）
@@ -29,6 +29,7 @@ const OWNER_HELP = `【行政專用指令】
 截止便當／開放便當：今天的便當收單（或重新開放）
 截止下午茶：關閉本週下午茶並給彙總
 催下午茶：提醒還沒點的同事
+設定消耗品 A4 影印紙 包／原子筆 支：更新消耗品領用清單
 
 同事傳來的訊息都會自動整理成待辦並通知你；沒寫期限的，系統會先問對方 3 小時內可不可以。
 週一到週五 8、11、15 點會推播未完成待辦。`;
@@ -36,6 +37,7 @@ const OWNER_HELP = `【行政專用指令】
 const MEMBER_HELP = `【可以這樣用】
 便當選項：選今天的便當（沒選就不訂）
 下午茶選項：選本週下午茶
+消耗品領用：選要拿的文具、耗材和數量
 有事要找行政：直接打字說明，例如
 「明天上午幫我叫快遞寄報告書到建築師事務所」
 訊息會轉給行政，處理完會通知你。`;
@@ -139,6 +141,10 @@ async function handleText(
   }
   if (text === "便當選項" || text === "訂便當") return replyLunchCard(replyToken, member);
   if (text === "下午茶選項" || text === "點下午茶") return replyTeaCard(replyToken, member);
+  if (text === "消耗品領用" || text === "消耗品") {
+    await line.reply(replyToken, [liffButton(LIFF_ID, "supply", "消耗品領用", "選要拿的文具、耗材和數量，送出後行政會準備。")]);
+    return;
+  }
 
   if (isOwner) {
     if (await handleOwnerCommand(replyToken, text, member)) return;
@@ -284,6 +290,18 @@ async function handleOwnerCommand(replyToken: string, text: string, member: db.M
     const items = parseItems(setLunch[1]);
     await db.replaceLunchItems(items);
     await line.reply(replyToken, [line.text(`便當選項已更新：\n${items.map((i) => `・${i.name}${i.price != null ? ` $${i.price}` : ""}`).join("\n")}`, OWNER_MENU)]);
+    return true;
+  }
+
+  const setSupply = text.match(/^設定消耗品\s+(.+)$/s);
+  if (setSupply) {
+    // 「A4 影印紙 包／原子筆 支」：最後一個字是單位（可省略）
+    const items = setSupply[1].split(/[／/、,，\n]+/).map((x) => x.trim()).filter(Boolean).map((x) => {
+      const m = x.match(/^(.+?)\s+(\S{1,2})$/);
+      return m ? { name: m[1], unit: m[2] } : { name: x, unit: "" };
+    });
+    await db.replaceSupplyItems(items);
+    await line.reply(replyToken, [line.text(`消耗品清單已更新：\n${items.map((i) => `・${i.name}${i.unit ? `（${i.unit}）` : ""}`).join("\n")}`, OWNER_MENU)]);
     return true;
   }
 

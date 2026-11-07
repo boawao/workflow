@@ -206,7 +206,7 @@ export function orderCard(opts: {
 }
 
 // 開啟 LIFF 點餐頁的卡片
-export function liffButton(liffId: string, tab: "lunch" | "tea", title: string, subtitle: string): Message {
+export function liffButton(liffId: string, tab: "lunch" | "tea" | "supply", title: string, subtitle: string): Message {
   return {
     type: "flex",
     altText: title,

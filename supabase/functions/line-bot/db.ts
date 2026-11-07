@@ -239,6 +239,30 @@ export async function myTeaOrders(roundId: number, userId: string): Promise<Reco
   return Object.fromEntries(rows.map((r) => [r.grp, r.item_name]));
 }
 
+// ---------- 消耗品 ----------
+
+export interface SupplyItem { id: number; name: string; unit: string }
+
+export async function supplyItems(): Promise<SupplyItem[]> {
+  return check(
+    await db.from("supply_items").select("id,name,unit").eq("active", true).order("sort"),
+  ) as SupplyItem[];
+}
+
+export async function replaceSupplyItems(items: { name: string; unit: string }[]) {
+  check(await db.from("supply_items").update({ active: false }).eq("active", true));
+  check(await db.from("supply_items").insert(items.map((it, i) => ({ ...it, sort: i }))));
+}
+
+export async function addSupplyRequest(r: {
+  user_id: string;
+  items: { name: string; unit: string; qty: number }[];
+  note: string;
+  todo_id: number;
+}) {
+  check(await db.from("supply_requests").insert(r));
+}
+
 export interface SummaryLine {
   name: string;
   item: string;
