@@ -1,4 +1,4 @@
-// 建立「便當選項／下午茶選項」圖文選單並設為所有人的預設選單
+// 建立「便當選項／下午茶選項／消耗品領用」圖文選單並設為所有人的預設選單
 // 由資料庫用 pg_net 呼叫一次（驗證 x-cron-secret）；重跑會先刪掉舊的同名選單
 
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -33,8 +33,9 @@ Deno.serve(async (req) => {
       name: NAME,
       chatBarText: "點餐",
       areas: [
-        { bounds: { x: 0, y: 0, width: 1250, height: 843 }, action: { type: "uri", label: "便當選項", uri: `https://liff.line.me/${LIFF_ID}?tab=lunch` } },
-        { bounds: { x: 1250, y: 0, width: 1250, height: 843 }, action: { type: "uri", label: "下午茶選項", uri: `https://liff.line.me/${LIFF_ID}?tab=tea` } },
+        { bounds: { x: 0, y: 0, width: 833, height: 843 }, action: { type: "uri", label: "便當選項", uri: `https://liff.line.me/${LIFF_ID}?tab=lunch` } },
+        { bounds: { x: 833, y: 0, width: 834, height: 843 }, action: { type: "uri", label: "下午茶選項", uri: `https://liff.line.me/${LIFF_ID}?tab=tea` } },
+        { bounds: { x: 1667, y: 0, width: 833, height: 843 }, action: { type: "uri", label: "消耗品領用", uri: `https://liff.line.me/${LIFF_ID}?tab=supply` } },
       ],
     }),
   });
