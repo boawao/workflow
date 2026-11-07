@@ -263,6 +263,30 @@ export async function addSupplyRequest(r: {
   check(await db.from("supply_requests").insert(r));
 }
 
+// 最近的領用紀錄（含領用人與待辦是否完成），新的在前
+export async function recentSupplyRequests(days = 31) {
+  const rows = check(
+    await db.from("supply_requests").select("id,items,note,created_at,members(name),todos(status)")
+      .gte("created_at", new Date(Date.now() - days * 86400_000).toISOString())
+      .order("created_at", { ascending: false }),
+  ) as {
+    id: number;
+    items: { name: string; unit: string; qty: number }[];
+    note: string;
+    created_at: string;
+    members: { name: string } | null;
+    todos: { status: string } | null;
+  }[];
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.members?.name ?? "",
+    items: r.items,
+    note: r.note,
+    created_at: r.created_at,
+    done: r.todos?.status === "done",
+  }));
+}
+
 export interface SummaryLine {
   name: string;
   item: string;

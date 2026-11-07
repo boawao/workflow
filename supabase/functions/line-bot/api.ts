@@ -78,7 +78,8 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
     if (!member.is_owner) return json({ error: "只有行政主帳號可以查看管理後台。" }, 403);
     const date = db.todayTaipei();
     const round = await db.latestTeaRound();
-    const [lunchClosed, todos, lunch, tea, teaMissing] = await Promise.all([
+    const [supply, lunchClosed, todos, lunch, tea, teaMissing] = await Promise.all([
+      db.recentSupplyRequests(),
       db.lunchClosed(date),
       db.openTodos(),
       db.lunchSummary(date),
@@ -90,6 +91,7 @@ export async function handleApi(req: Request, path: string): Promise<Response> {
         id, title, detail, priority, due, requester_name, awaiting_due, created_at,
       })),
       lunch: { date, closed: lunchClosed, lines: lunch },
+      supply,
       tea: round
         ? { store: round.store, is_open: round.is_open, lines: tea, missing: teaMissing.map((m) => m.name) }
         : null,

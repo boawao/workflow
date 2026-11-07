@@ -49,7 +49,7 @@ h1 { margin: 0; font-size: 20px; letter-spacing: .02em; }
 .stat { background: rgba(255, 255, 255, .08); border-radius: 10px; padding: 10px 12px; }
 .stat b { display: block; font-size: 24px; font-variant-numeric: tabular-nums; line-height: 1.2; }
 .stat span { font-size: 12px; color: var(--teal-soft); }
-.tabs { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 12px; }
+.tabs { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 12px; }
 .tab {
   appearance: none; border: 0; background: transparent; cursor: pointer; font: inherit;
   font-size: 15px; font-weight: 700; color: rgba(255, 255, 255, .62);
@@ -101,6 +101,7 @@ h2 .count { color: var(--muted); font-weight: 400; font-size: 13px; }
     <button class="tab" role="tab" data-tab="todo" aria-selected="true">待辦</button>
     <button class="tab" role="tab" data-tab="lunch" aria-selected="false">便當</button>
     <button class="tab" role="tab" data-tab="tea" aria-selected="false">下午茶</button>
+    <button class="tab" role="tab" data-tab="supply" aria-selected="false">消耗品</button>
   </div>
 </header>
 <main id="main"><div class="empty">載入中…</div></main>
@@ -158,6 +159,33 @@ function render() {
             <span>${time(t.created_at)}</span></div>
         </div>`).join("")}</section>`;
     }).join("");
+  } else if (tab === "supply") {
+    const reqs = data.supply || [];
+    if (!reqs.length) { main.innerHTML = `<div class="card empty">最近 31 天沒有消耗品領用</div>`; return; }
+    const month = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit" }).format(new Date());
+    const totals = new Map();
+    for (const r of reqs) {
+      const m = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Taipei", year: "numeric", month: "2-digit" }).format(new Date(r.created_at));
+      if (m !== month) continue;
+      for (const it of r.items) {
+        const k = it.name + "|" + it.unit;
+        totals.set(k, (totals.get(k) || 0) + it.qty);
+      }
+    }
+    const pending = reqs.filter((r) => !r.done).length;
+    const totalRows = [...totals].sort((a, b) => b[1] - a[1]).map(([k, q]) => {
+      const [name, unit] = k.split("|");
+      return `<div class="row"><span>${esc(name)}</span><span class="n">${q} ${esc(unit)}</span></div>`;
+    }).join("");
+    main.innerHTML = `<section><h2>本月合計<span class="count">${month.replace("-", " 年 ")} 月</span></h2>
+        <div class="card rows">${totalRows || '<div class="empty">本月還沒有領用</div>'}</div></section>
+      <section><h2>領用紀錄<span class="count">最近 31 天・${reqs.length} 筆${pending ? `，${pending} 筆待準備` : ""}</span></h2>
+        ${reqs.map((r) => `<div class="card todo ${r.done ? "" : "important"}">
+          <div class="title">${esc(r.name || "（未命名）")} <span class="tag ${r.done ? "" : "open"}">${r.done ? "已完成" : "待準備"}</span></div>
+          <div class="detail">${r.items.map((it) => `${esc(it.name)} × ${it.qty}${esc(it.unit)}`).join("、")}</div>
+          ${r.note ? `<div class="detail">備註：${esc(r.note)}</div>` : ""}
+          <div class="meta"><span>${time(r.created_at)}</span></div>
+        </div>`).join("")}</section>`;
   } else if (tab === "lunch") {
     const c = data.lunch.closed;
     main.innerHTML = `<section><h2>${esc(data.lunch.date)} 便當 <span class="tag ${c ? "" : "open"}">${c ? "已收單" : "開放中"}</span><span class="count">沒選的人不訂</span></h2></section>`
