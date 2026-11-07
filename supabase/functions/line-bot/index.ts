@@ -343,7 +343,10 @@ async function finishTodo(replyToken: string, id: number, member: db.Member) {
   const remaining = (await db.openTodos()).length;
   await line.reply(replyToken, [line.text(`✅ 已完成 #${id}「${todo.title}」\n剩下 ${remaining} 件待辦。`, OWNER_MENU)]);
   if (todo.requester_id && todo.requester_id !== member.user_id) {
-    await line.push(todo.requester_id, [line.text(`行政已處理完成：「${todo.title}」`)]);
+    const notice = todo.title.startsWith("消耗品領用")
+      ? `你領用的消耗品已經準備好了，請到行政處拿取：\n${todo.detail}`
+      : `行政已處理完成：「${todo.title}」`;
+    await line.push(todo.requester_id, [line.text(notice)]);
   }
 }
 
